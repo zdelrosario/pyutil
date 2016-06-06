@@ -1,6 +1,7 @@
 # Necessary imports
 from scipy.linalg import svd
 from scipy import compress, transpose
+from numpy import pad
 from numpy.linalg import norm
 from numpy import dot
 from numpy import atleast_2d
@@ -16,6 +17,7 @@ from numpy import diag
 # from scipy import compress, transpose
 def null(A, eps=1e-15):
     u, s, vh = svd(A)
+    s = pad(s,(0,vh.shape[0]-len(s)),mode='constant')
     null_mask = (s <= eps)
     null_space = compress(null_mask, vh, axis=0)
     return transpose(null_space)
@@ -139,6 +141,6 @@ if __name__ == "__main__":
     # M = np.
 
     ### Test column normalization
-    M = np.reshape(np.arange(9),(3,3))
-    Mn= norm_col(M)
-    print( Mn )
+    # M = np.reshape(np.arange(9),(3,3))
+    # Mn= norm_col(M)
+    # print( Mn )
