@@ -4,4 +4,4 @@ Updated May 30, 2016
 """
 
 # Import subdirectories
-__all__ = ["latex","numeric"]
+__all__ = ["plotting","numeric"]
