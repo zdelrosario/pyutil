@@ -16,17 +16,22 @@ from numpy import diag
 # Computation
 ##################################################
 # Quadratic form
-def quad(x,A):
-    """Computes the quadratic x^T A x
+def quad(x,A,y=[]):
+    """Computes the quadratic x^T A y
     Usage
         res = quad(x,A)
+        res = quad(x,A,y)
     Inputs
         x   = column vector
         A   = square matrix
+        y   = column vector, defaults to x
     Outputs
-        res = x^T A x
+        res = x^T A y
     """
-    return (x.T.dot(A)*x.T).sum(axis=1)[0]
+    if not any(y):
+        return (x.T.dot(A)*x.T).sum(axis=1)[0]
+    else:
+        return (x.T.dot(A)*y.T).sum(axis=1)[0]
 
 ##################################################
 # Linear Algebra
@@ -182,5 +187,7 @@ if __name__ == "__main__":
     ### Test quad
     x = col([1]*3)
     A = np.arange(9).reshape((-1,3))
-    r = quad(x,A)
-    print("x^TAx = {}".format(r))
+    y = col([2]*3)
+
+    print("x^TAx = {}".format(quad(x,A)))
+    print("x^TAy = {}".format(quad(x,A,y)))
