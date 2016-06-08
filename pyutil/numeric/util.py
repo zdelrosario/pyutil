@@ -12,6 +12,26 @@ from copy import copy
 from math import log
 from numpy import diag
 
+##################################################
+# Computation
+##################################################
+# Quadratic form
+def quad(x,A):
+    """Computes the quadratic x^T A x
+    Usage
+        res = quad(x,A)
+    Inputs
+        x   = column vector
+        A   = square matrix
+    Outputs
+        res = x^T A x
+    """
+    return (x.T.dot(A)*x.T).sum(axis=1)[0]
+
+##################################################
+# Linear Algebra
+##################################################
+
 # Nullspace computation
 # from scipy.linalg import svd
 # from scipy import compress, transpose
@@ -22,24 +42,11 @@ def null(A, eps=1e-15):
     null_space = compress(null_mask, vh, axis=0)
     return transpose(null_space)
 
-# Subspace distance
-# from numpy.linalg import norm
-# from numpy import dot
-def subspace_distance(W1,W2):
-    """Computes the subspace distance
-    Note that provided matrices must 
-    have orthonormal columns
-    Usage
-        res = subspace_distance(W1,W2)
-    Inputs
-        W1 = orthogonal matrix
-        W2 = orthogonal matrix
-    Outputs
-        res = subspace distance
-    """
-    return norm(dot(W1,W1.T)-dot(W2,W2.T),ord=2)
+##################################################
+# Reshaping
+##################################################
 
-# Return a 2D array with column vectors
+# Return a 2D numpy array with column vectors
 # from numpy import atleast_2d
 def col(M):
     """Returns column vectors
@@ -70,6 +77,27 @@ def unvec(v,n):
     """
     return reshape(v,(n,-1))
 
+##################################################
+# Measurement
+##################################################
+
+# Subspace distance
+# from numpy.linalg import norm
+# from numpy import dot
+def subspace_distance(W1,W2):
+    """Computes the subspace distance
+    Note that provided matrices must 
+    have orthonormal columns
+    Usage
+        res = subspace_distance(W1,W2)
+    Inputs
+        W1 = orthogonal matrix
+        W2 = orthogonal matrix
+    Outputs
+        res = subspace distance
+    """
+    return norm(dot(W1,W1.T)-dot(W2,W2.T),ord=2)
+
 # Active Subspace Dimension
 # from copy import copy
 def as_dim(Lam,eps=2.5):
@@ -99,6 +127,10 @@ def as_dim(Lam,eps=2.5):
     else:
         return G.index(gap)+1
 
+##################################################
+# Normalization
+##################################################
+
 # Normalize the columns of a matrix
 # from numpy import diag
 def norm_col(M):
@@ -114,7 +146,9 @@ def round_out(M):
         C[:,i] = M[:,i] / c
     return C
 
+##################################################
 # Test code
+##################################################
 if __name__ == "__main__":
     import numpy as np
 
@@ -144,3 +178,9 @@ if __name__ == "__main__":
     # M = np.reshape(np.arange(9),(3,3))
     # Mn= norm_col(M)
     # print( Mn )
+
+    ### Test quad
+    x = col([1]*3)
+    A = np.arange(9).reshape((-1,3))
+    r = quad(x,A)
+    print("x^TAx = {}".format(r))
