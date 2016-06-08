@@ -78,7 +78,7 @@ def unvec(v,n):
         v = vector of length l=n*m
         n = number of rows for M
     Outputs
-        M = 
+        M = matrix of size n x m
     """
     return reshape(v,(n,-1))
 
