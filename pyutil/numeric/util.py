@@ -1,3 +1,6 @@
+"""Collection of numeric utility functions
+"""
+
 # Necessary imports
 from scipy.linalg import svd
 from scipy import compress, transpose
