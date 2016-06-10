@@ -31,7 +31,6 @@ def quad(x,A,y=[]):
     Returns
         res = x^T A y
     """
-    raise ValueError("I'm a ValueError!")
     if not any(y):
         return (x.T.dot(A)*x.T).sum(axis=1)[0]
     else:
