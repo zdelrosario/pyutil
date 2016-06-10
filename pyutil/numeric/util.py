@@ -28,7 +28,7 @@ def quad(x,A,y=[]):
         x   = column vector
         A   = square matrix
         y   = column vector, defaults to x
-    Outputs
+    Returns
         res = x^T A y
     """
     raise ValueError("I'm a ValueError!")
@@ -45,6 +45,16 @@ def quad(x,A,y=[]):
 # from scipy.linalg import svd
 # from scipy import compress, transpose
 def null(A, eps=1e-15):
+    """Computes a basis for the nullspace of a matrix
+    Usage
+        N = null(A)
+    Arguments
+        A = rectangular matrix
+    Keyword Arguments
+        eps = singular value tolerance for nullspace detection
+    Returns
+        N = matrix of column vectors; basis for nullspace
+    """
     u, s, vh = svd(A)
     s = pad(s,(0,vh.shape[0]-len(s)),mode='constant')
     null_mask = (s <= eps)
@@ -59,6 +69,12 @@ def null(A, eps=1e-15):
 # from numpy import atleast_2d
 def col(M):
     """Returns column vectors
+    Usage
+        Mc = col(M)
+    Inputs
+        M  = 1- or 2-dimensional array-like
+    Returns
+        Mc = 2-dimensional numpy array
     """
     res = atleast_2d(M)
     # We're not ok with row vectors!
@@ -70,6 +86,15 @@ def col(M):
 # Vectorize a matrix
 # from numpy import ravel
 def vec(A):
+    """Vectorize a matrix
+    Usage
+        v = vec(A)
+    Arguments
+        A = matrix of size n x m
+    Returns
+        v = vector of size n*m, stacked 
+            columns of A
+    """
     return col(ravel(A))
 
 # Unvectorize a matrix
@@ -81,7 +106,7 @@ def unvec(v,n):
     Inputs
         v = vector of length l=n*m
         n = number of rows for M
-    Outputs
+    Returns
         M = matrix of size n x m
     """
     return reshape(v,(n,-1))
@@ -102,7 +127,7 @@ def subspace_distance(W1,W2):
     Inputs
         W1 = orthogonal matrix
         W2 = orthogonal matrix
-    Outputs
+    Returns
         res = subspace distance
     """
     return norm(dot(W1,W1.T)-dot(W2,W2.T),ord=2)
@@ -118,19 +143,19 @@ def as_dim(Lam,eps=2.5):
         Lam = positive Eigenvalues, sorted by decreasing magnitude
     Keyword Arguments
         eps = order of magnitude gap needed for AS
+    Returns
+        dim = dimension of most accurate Active Subspace
     """
     # Normalize by eigenvalue energy
     s = sum(Lam)
     L = [l/s for l in Lam]
     # Check eigenvalue gaps
-    # G = [L[i]-L[i+1] for i in range(len(L)-1)]
     Gp= [log(L[i]/L[i+1],10) for i in range(len(L)-1)]
     # If no gap exceeds eps, full dimensional
     gap = max(Gp)
-    # print("pow={}".format(p))
     if gap < eps:
         return len(L)
-    # Return dimension
+    # Return dimension based on largest gap
     else:
         return Gp.index(gap)+1
 
@@ -141,12 +166,30 @@ def as_dim(Lam,eps=2.5):
 # Normalize the columns of a matrix
 # from numpy import diag
 def norm_col(M):
+    """Normalizes the columns of a matrix
+    Usage
+        Mn = norm_col(M)
+    Arguments
+        M  = 2-dimensional numpy array (matrix)
+    Returns
+        Mn = 2-dimensional numpy array with same shape
+             as M, whose columns have an L2 norm of 1
+    """
     E = diag( [1/norm(M[:,i]) for i in range(M.shape[1])] )
     return M.dot(E)
 
 # Rounds by smallest non-zero magnitude vector element
 # from numpy import zeros, shape, nonzero
 def round_out(M):
+    """Attempts to round a matrix to recover integer values
+    Usage
+        Mr = round_out(M)
+    Arguments
+        M  = 2-dimensional numpy array
+    Returns
+        Mr = a copy of M where each column has been
+             divided by the smallest nonzero element
+    """
     C = zeros(shape(M))
     for i in range(shape(M)[1]):
         c = min(min(M[nonzero(M[:,i]),i]))
