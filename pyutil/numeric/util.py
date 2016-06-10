@@ -122,18 +122,16 @@ def as_dim(Lam,eps=2.5):
     s = sum(Lam)
     L = [l/s for l in Lam]
     # Check eigenvalue gaps
-    G = [L[i]-L[i+1] for i in range(len(L)-1)]
-    Gp= [L[i]/L[i+1] for i in range(len(L)-1)]
+    # G = [L[i]-L[i+1] for i in range(len(L)-1)]
+    Gp= [log(L[i]/L[i+1],10) for i in range(len(L)-1)]
     # If no gap exceeds eps, full dimensional
-    gap = max(G)
-    ind = G.index(gap)
-    p   = log(Gp[ind])
+    gap = max(Gp)
     # print("pow={}".format(p))
-    if p < eps:
+    if gap < eps:
         return len(L)
     # Return dimension
     else:
-        return G.index(gap)+1
+        return Gp.index(gap)+1
 
 ##################################################
 # Normalization
