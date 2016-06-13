@@ -11,9 +11,9 @@ from numpy import atleast_2d
 from numpy import ravel
 from numpy import reshape
 from numpy import zeros, shape, nonzero
-from copy import copy
 from math import log
 from numpy import diag
+import copy
 
 ##################################################
 # Computation
@@ -132,7 +132,6 @@ def subspace_distance(W1,W2):
     return norm(dot(W1,W1.T)-dot(W2,W2.T),ord=2)
 
 # Active Subspace Dimension
-# from copy import copy
 def as_dim(Lam,eps=2.5):
     """Finds the dimension of the 
     most accurate Active Subspace
@@ -194,6 +193,39 @@ def round_out(M):
         c = min(min(M[nonzero(M[:,i]),i]))
         C[:,i] = M[:,i] / c
     return C
+
+##################################################
+# Dimensionality
+##################################################
+
+# Generate the full list of multi-indices
+# import copy
+def multi_index(N):
+    """Generates list of elements in a multi-index
+    Usage
+        K = multi_index(N)
+    Arguments
+        N = list of elements per dimension;
+            length is number of dimensions
+    Returns
+        K = list of multi-index values
+    """
+    d = len(N)
+    # Seed with first element
+    res = [[0] * d]
+    # Loop over every dimension
+    for i in range(d):
+        # Create buffer for added rows
+        add_on = []
+        # Loop over every existing row, skip first
+        for j in range(len(res)):
+            # Loop over every possible value
+            for k in range(N[i]):
+                temp = copy.copy(res[j]); temp[i] = k
+                add_on.append(temp)
+        # Replace with buffer
+        res = add_on
+    return res
 
 ##################################################
 # Test code

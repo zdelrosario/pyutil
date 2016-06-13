@@ -1,25 +1,15 @@
+"""Collection of integration utilities intended for
+multi-dimensional numerical integration (cubature)
+Note that these are for convenience -- they are
+not optimized for speed.
+"""
+
 import numpy as np
 import copy
 from numpy.polynomial.hermite import hermgauss
 from numpy.polynomial.legendre import leggauss
 
-# Generate the full list of multi-indices
-def index_square(n,d):
-    # Seed with first element
-    res = [[0] * d]
-    # Loop over every dimension
-    for i in range(d):
-        # Create buffer for added rows
-        add_on = []
-        # Loop over every existing row, skip first
-        for j in range(len(res)):
-            # Loop over every possible value
-            for k in range(n):
-                temp = copy.copy(res[j]); temp[i] = k
-                add_on.append(temp)
-        # Replace with buffer
-        res = add_on
-    return res
+from util import multi_index
 
 # Partial product of weights
 def part_prod(fcn,Xi,x,w):
@@ -48,7 +38,7 @@ def cubature(fcn, n, m, rule):
     # Load 1-D points/weights
     x, w = rule(n)
     # Generate multi-index list
-    E = index_square(n, m)
+    E = multi_index([n]*m)
     # Iterative summation
     res = part_prod(fcn,E[0],x,w)
     for i in range(1,len(E)):
