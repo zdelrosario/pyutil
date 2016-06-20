@@ -173,8 +173,17 @@ def norm_col(M):
         Mn = 2-dimensional numpy array with same shape
              as M, whose columns have an L2 norm of 1
     """
-    E = diag( [1/norm(M[:,i]) for i in range(M.shape[1])] )
-    return M.dot(E)
+    E = zeros(M.shape)
+    for i in range(M.shape[1]):
+        n = norm(M[:,i])
+        if n > 0:
+            E[:,i] = M[:,i] / n
+        else:
+            pass
+    return E
+
+    # E = diag( [1/norm(M[:,i]) for i in range(M.shape[1])] )
+    # return M.dot(E)
 
 # Rounds by smallest non-zero magnitude vector element
 # from numpy import zeros, shape, nonzero
