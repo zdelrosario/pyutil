@@ -6,7 +6,7 @@
 ##################################################
 
 import numpy as np
-from pyutil.numeric import col, quad, vec, unvec
+from util import col, quad, vec, unvec
 from numpy.random import rand, randn
 from scipy.linalg import inv
 from numpy import sqrt
