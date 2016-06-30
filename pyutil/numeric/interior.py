@@ -19,7 +19,7 @@ def constrained_opt(F,G,x0,tol=1e-8,it_max=1e3,disp=False):
     Outputs
         xs      = optimal point
         Fs      = optimal value
-        Gs      = gradient at optimal point
+        Gs      = gradient of objective+barrier at optimal point
         X       = sequence of iterates
         Ft      = sequence of function values
     """
@@ -36,6 +36,8 @@ def constrained_opt(F,G,x0,tol=1e-8,it_max=1e3,disp=False):
     n   = np.size(x0)   # dim of problem
 
     ### Feasibility problem
+    if disp==True:
+        print("constrained_opt status: Solving feasibility problem...")
     G0     = lambda x: ext_obj(G(x),s)
     # Minimize G0
     xs, _ = fmin_bfgs(G0,x0,retall=True,disp=disp)
@@ -44,6 +46,8 @@ def constrained_opt(F,G,x0,tol=1e-8,it_max=1e3,disp=False):
     it = it + 1
 
     ### Interior point problem sequence
+    if disp==True:
+        print("constrained_opt status: Beginning interior point method...")
     while (err > tol) and (it<it_max):  # Not converged
         # Relax the barrier
         fcn = lambda x: F(x) + log_barrier(G(x))/r
@@ -62,7 +66,8 @@ def constrained_opt(F,G,x0,tol=1e-8,it_max=1e3,disp=False):
             r   = r_max
             eps = eps=np.finfo(float).eps
         # Compute error
-        err = np.linalg.norm(xn-xs)
+        # err = np.linalg.norm(xn-xs)
+        err = np.linalg.norm(Gs)
         # Set new start guess
         xs = xn
 
