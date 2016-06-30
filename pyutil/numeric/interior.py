@@ -11,7 +11,7 @@ def constrained_opt(F,G,x0,tol=1e-8,it_max=1e3,disp=False):
         xs, Fs, Gs, X, Ft = constrained_opt(F,G,x0)
     Arguments
         F       = objective function, R^n->R
-        G       = leq constraints G >= 0, R^n->R^k
+        G       = leq constraints G <= 0, R^n->R^k
         x0      = initial guess
     Keyword Arguments
         tol     = convergence tolerance (L2 gradient)
