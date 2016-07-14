@@ -18,6 +18,14 @@ import copy
 ##################################################
 # Computation
 ##################################################
+from math import factorial as fac
+def nCr(n,r):
+    return fac(n) / fac(r) / fac(n-r)
+
+##################################################
+# Linear Algebra
+##################################################
+
 # Quadratic form
 def quad(x,A,y=[]):
     """Computes the quadratic x^T A y
@@ -35,10 +43,6 @@ def quad(x,A,y=[]):
         return (x.T.dot(A)*x.T).sum(axis=1)[0]
     else:
         return (x.T.dot(A)*y.T).sum(axis=1)[0]
-
-##################################################
-# Linear Algebra
-##################################################
 
 # Nullspace computation
 # from scipy.linalg import svd
