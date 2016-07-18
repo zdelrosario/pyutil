@@ -7,7 +7,7 @@ from scipy import compress, transpose
 from numpy import pad
 from numpy.linalg import norm
 from numpy import dot
-from numpy import atleast_2d
+from numpy import atleast_2d, squeeze
 from numpy import ravel
 from numpy import reshape
 from numpy import zeros, shape, nonzero
@@ -84,6 +84,10 @@ def col(M):
     # Transpose back to a column vector
     if res.shape[0] == 1:
         res = res.T
+    # Get back to 2D if too large
+    if len(res.shape) > 2:
+        res = squeeze(res)
+        return col(res)
     return res
 
 # Vectorize a matrix
@@ -273,10 +277,18 @@ if __name__ == "__main__":
     # Mn= norm_col(M)
     # print( Mn )
 
-    ### Test quad
-    x = col([1]*3)
+    ### Test column return
     A = np.arange(9).reshape((-1,3))
-    y = col([2]*3)
+    v = col(A[:,0])
+    w = col([col([1,2]),col([3,4])])
 
-    print("x^TAx = {}".format(quad(x,A)))
-    print("x^TAy = {}".format(quad(x,A,y)))
+    print("v = \n{}".format(v))
+    print("w = \n{}".format(w))
+
+    ### Test quad
+    # x = col([1]*3)
+    # A = np.arange(9).reshape((-1,3))
+    # y = col([2]*3)
+
+    # print("x^TAx = {}".format(quad(x,A)))
+    # print("x^TAy = {}".format(quad(x,A,y)))
