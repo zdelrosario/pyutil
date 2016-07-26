@@ -6,7 +6,7 @@ from scipy.linalg import svd
 from scipy import compress, transpose
 from numpy import pad
 from numpy import eye, concatenate
-from numpy.linalg import norm, qr
+from numpy.linalg import norm, qr, matrix_rank
 from numpy import dot
 from numpy import atleast_2d, squeeze
 from numpy import ravel
@@ -73,7 +73,7 @@ def comp(M):
     """
     I = eye(M.shape[0])
     Q,R = qr(concatenate((M,I),axis=1))
-    return Q[:,M.shape[1]:]
+    return Q[:,matrix_rank(M):]
 
 def inter(W1,W2):
     """Returns a basis for the intersection
