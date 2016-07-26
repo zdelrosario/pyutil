@@ -5,7 +5,8 @@
 from scipy.linalg import svd
 from scipy import compress, transpose
 from numpy import pad
-from numpy.linalg import norm
+from numpy import eye, concatenate
+from numpy.linalg import norm, qr
 from numpy import dot
 from numpy import atleast_2d, squeeze
 from numpy import ravel
@@ -63,6 +64,17 @@ def null(A, eps=1e-15):
     null_mask = (s <= eps)
     null_space = compress(null_mask, vh, axis=0)
     return transpose(null_space)
+
+# from numpy import eye, concatenate
+# from scipy.linalg import qr
+def comp(M):
+    """Returns a basis for the space orthogonal
+    to the range of M
+    """
+    I = eye(M.shape[0])
+    Q,R = qr(concatenate((M,I),axis=1))
+    return Q[:,M.shape[1]:]
+
 
 ##################################################
 # Reshaping
