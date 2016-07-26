@@ -75,6 +75,13 @@ def comp(M):
     Q,R = qr(concatenate((M,I),axis=1))
     return Q[:,M.shape[1]:]
 
+def inter(W1,W2):
+    """Returns a basis for the intersection
+    of two matrix ranges
+    """
+    W1c = comp(W1); W2c = comp(W2)
+    M = concatenate((W1c.T,W2c.T),axis=0)
+    return null(M)
 
 ##################################################
 # Reshaping
