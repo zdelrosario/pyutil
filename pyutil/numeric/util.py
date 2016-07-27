@@ -7,6 +7,7 @@ from scipy import compress, transpose
 from numpy import pad
 from numpy import eye, concatenate
 from numpy.linalg import norm, qr, matrix_rank
+from numpy.random import randint
 from numpy import dot
 from numpy import atleast_2d, squeeze
 from numpy import ravel
@@ -262,6 +263,28 @@ def multi_index(N):
         # Replace with buffer
         res = add_on
     return res
+
+##################################################
+# Sampling
+##################################################
+
+def bootstrap_resample(X, n=None):
+    """Performs bootstrap resampling on a sample population
+    Usage
+        X_b = bootstrap_resample(X, n=None)
+    Arguments
+        X   = sample population; samples are entries of X
+    Keyword Arguments
+        n   = number of samples to draw; None results in
+              n = len(X)
+    Returns
+        X_b = resampled population
+    """
+    if n == None:
+        n = len(X)
+
+    ind = randint(0,len(X),(n,))
+    return X[ind]
 
 ##################################################
 # Test code
