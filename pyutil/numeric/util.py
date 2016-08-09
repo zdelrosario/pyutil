@@ -6,7 +6,7 @@ from scipy.linalg import svd
 from scipy import compress, transpose
 from numpy import pad
 from numpy import eye, concatenate
-from numpy.linalg import norm, qr, matrix_rank
+from numpy.linalg import norm, qr, matrix_rank, lstsq
 from numpy.random import randint
 from numpy import dot
 from numpy import atleast_2d, squeeze
@@ -185,6 +185,14 @@ def as_dim(Lam,eps=2.5):
     else:
         return Gp.index(gap)+1
 
+# Subspace inclusion
+def incl(W,A):
+    """Cheks if the space spanned by W is 
+    included in the space spanned by A
+    """
+    res = lstsq(A,W)
+    return sum(res[1])
+    
 ##################################################
 # Normalization
 ##################################################
@@ -210,9 +218,7 @@ def norm_col(M):
             pass
     return E
 
-    # E = diag( [1/norm(M[:,i]) for i in range(M.shape[1])] )
-    # return M.dot(E)
-
+    
 # Rounds by smallest non-zero magnitude vector element
 # from numpy import zeros, shape, nonzero
 def round_out(M):
@@ -320,12 +326,12 @@ if __name__ == "__main__":
     # print( Mn )
 
     ### Test column return
-    A = np.arange(9).reshape((-1,3))
-    v = col(A[:,0])
-    w = col([col([1,2]),col([3,4])])
+    # A = np.arange(9).reshape((-1,3))
+    # v = col(A[:,0])
+    # w = col([col([1,2]),col([3,4])])
 
-    print("v = \n{}".format(v))
-    print("w = \n{}".format(w))
+    # print("v = \n{}".format(v))
+    # print("w = \n{}".format(w))
 
     ### Test quad
     # x = col([1]*3)
@@ -334,3 +340,9 @@ if __name__ == "__main__":
 
     # print("x^TAx = {}".format(quad(x,A)))
     # print("x^TAy = {}".format(quad(x,A,y)))
+
+    # Test subspace inclusion
+    A = np.arange(9).reshape((-1,3))
+    u = col(np.ones(3))
+    res = incl(u,A)
+    print("res = {}".format(res))
