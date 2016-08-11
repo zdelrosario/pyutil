@@ -187,8 +187,16 @@ def as_dim(Lam,eps=2.5):
 
 # Subspace inclusion
 def incl(W,A):
-    """Cheks if the space spanned by W is 
+    """Checks if the space spanned by W is 
     included in the space spanned by A
+    Usage
+        res = incl(W,A)
+    Arguments
+        W = m x k matrix
+        A = m x n matrix
+    Returns
+        res = subspace inclusion value; 
+        0 iff R(W)\in R(A)
     """
     res = lstsq(A,W)
     return sum(res[1])
