@@ -202,16 +202,9 @@ def incl(W,A,tol=1e-6):
     """
     # Build a basis for R(A)
     Q,R = qr(A); L = diag(R)
-    print("L = \n{}".format(L))
     d = next( (i for i,x in enumerate(L) if abs(x)<=tol), len(L) )
-    print("d = {}".format(d))
     Ap = Q[:,:d]
-    # Perform inclusion test
-    # res = 0
-    # for i in range(W.shape[1]):
-        
-    #     res += lstsq(Ap,W[:,i])[1]
-    
+    # Perform inclusion test    
     return sum(lstsq(Ap,W)[1])
     
 ##################################################
