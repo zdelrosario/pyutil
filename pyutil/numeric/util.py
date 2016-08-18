@@ -103,7 +103,6 @@ def basis(A,tol=None):
         tol = L.max()*max(A.shape)*eps
     d = next( (i for i,s in enumerate(L) if s<=tol), len(L) )
     return U[:,:d]
-    
 
 ##################################################
 # Reshaping
@@ -181,7 +180,7 @@ def subspace_distance(W1,W2):
     return norm(dot(W1,W1.T)-dot(W2,W2.T),ord=2)
 
 # Active Subspace Dimension
-def as_dim(Lam,eps=2.5):
+def as_dim(L,eps=2.0):
     """Finds the dimension of the 
     most accurate Active Subspace
     Usage
@@ -193,20 +192,8 @@ def as_dim(Lam,eps=2.5):
     Returns
         dim = dimension of most accurate Active Subspace
     """
-    # Normalize by eigenvalue energy
-    s = sum(Lam)
-    L = [l/s for l in Lam]
-    # Check eigenvalue gaps
-    Gp= [log(L[i]/L[i+1],10) for i in range(len(L)-1)]
-    # If no gap exceeds eps, full dimensional
-    gap = max(Gp)
-    if gap < eps:
-        return len(L)
-    # Return dimension based on largest gap
-    else:
-        return Gp.index(gap)+1
-
-
+    # Find first sufficiently-large eval gap
+    return next( (i+1 for i,s in enumerate(L[:-1]) if log(L[i]/L[i+1],10)>=eps), len(L) )
     
 # Subspace inclusion
 def incl(W,A,tol=None):
@@ -340,17 +327,17 @@ if __name__ == "__main__":
     # print(M)
 
     ### Test as_dim
-    # Lam1 = [1,0.9] # Should be 2D
-    # Lam2 = [1e3,1e1,0.5e1,1e0] # should be 1D
-    # Lam3 = [1e3,0.9e3,1e1,1e0] # should be 2D
-    # Lam4 = [1e3,0.9e3,0.8e3,1e0] # should be 3D
-    # Lam5 = [1e3,0.9e3,0.8e3,0.7e3] # should be 4D
+    Lam1 = [1,0.9] # Should be 2D
+    Lam2 = [1e3,1e1,0.5e1,1e0] # should be 1D
+    Lam3 = [1e3,0.9e3,1e1,1e0] # should be 2D
+    Lam4 = [1e4,0.9e3,0.8e3,1e0] # should be 3D
+    Lam5 = [1e3,0.9e3,0.8e3,0.7e3] # should be 4D
     
-    # print("AS 1 dim={}".format(as_dim(Lam1)))
-    # print("AS 2 dim={}".format(as_dim(Lam2)))
-    # print("AS 3 dim={}".format(as_dim(Lam3)))
-    # print("AS 4 dim={}".format(as_dim(Lam4)))
-    # print("AS 5 dim={}".format(as_dim(Lam5)))
+    print("AS 1 dim={}, expected={}".format(as_dim(Lam1,eps=1.5),2))
+    print("AS 2 dim={}, expected={}".format(as_dim(Lam2,eps=1.5),1))
+    print("AS 3 dim={}, expected={}".format(as_dim(Lam3,eps=1.5),2))
+    print("AS 4 dim={}, expected={}".format(as_dim(Lam4,eps=1.5),3))
+    print("AS 5 dim={}, expected={}".format(as_dim(Lam5,eps=1.5),4))
 
     ### Test subspace_distance
     # M = np.
@@ -382,15 +369,15 @@ if __name__ == "__main__":
     # A = np.random.random((3,5)) # Fat, full rank
     # Ap= A[:,0:-1]
 
-    A = np.eye(3); A[:,2] = np.array([0,1,1e-6]) # Nearly singular
-    Ap= A
+    # A = np.eye(3); A[:,2] = np.array([0,1,1e-6]) # Nearly singular
+    # Ap= A
     
-    u1= col(A[:,0])
-    u2= col(A[:,1])
-    u3= col(A[:,2])
-    res1 = incl(u1,Ap)
-    res2 = incl(u2,Ap)
-    res3 = incl(u3,Ap)
-    print("res1 = {}".format(res1))
-    print("res2 = {}".format(res2))
-    print("res3 = {}".format(res3))
+    # u1= col(A[:,0])
+    # u2= col(A[:,1])
+    # u3= col(A[:,2])
+    # res1 = incl(u1,Ap)
+    # res2 = incl(u2,Ap)
+    # res3 = incl(u3,Ap)
+    # print("res1 = {}".format(res1))
+    # print("res2 = {}".format(res2))
+    # print("res3 = {}".format(res3))
