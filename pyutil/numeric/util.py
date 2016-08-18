@@ -4,7 +4,7 @@
 # Necessary imports
 from scipy.linalg import svd
 from scipy import compress, transpose
-from numpy import pad
+from numpy import pad, abs, finfo
 from numpy import eye, concatenate
 from numpy.linalg import norm, qr, matrix_rank, lstsq
 from numpy.random import randint
@@ -186,7 +186,7 @@ def as_dim(Lam,eps=2.5):
         return Gp.index(gap)+1
 
 # Subspace inclusion
-def incl(W,A,tol=1e-6):
+def incl(W,A,tol=None):
     """Checks if the space spanned by W is 
     included in the space spanned by A
     Usage
@@ -201,9 +201,12 @@ def incl(W,A,tol=1e-6):
         0 iff R(W)\in R(A)
     """
     # Build a basis for R(A)
-    Q,R = qr(A); L = diag(R)
-    d = next( (i for i,x in enumerate(L) if abs(x)<=tol), len(L) )
-    Ap = Q[:,:d]
+    U,L,V = svd(A)
+    eps = finfo(float).eps
+    if tol == None:
+        tol = L.max()*max(A.shape)*eps
+    d = next( (i for i,s in enumerate(L) if s<=tol), len(L) )
+    Ap = U[:,:d]
     # Perform inclusion test    
     return sum(lstsq(Ap,W)[1])
     
@@ -356,10 +359,11 @@ if __name__ == "__main__":
     # print("x^TAy = {}".format(quad(x,A,y)))
 
     # Test subspace inclusion
-    np.random.seed(0)
+    # np.random.seed(0)
     # A = np.random.random((3,3)) # square, full rank
     # A = np.random.random((3,5)) # Fat, full rank
     # Ap= A[:,0:-1]
+
     A = np.eye(3); A[:,2] = np.array([0,1,1e-6]) # Nearly singular
     Ap= A
     
