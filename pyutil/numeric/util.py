@@ -84,6 +84,27 @@ def inter(W1,W2):
     M = concatenate((W1c.T,W2c.T),axis=0)
     return null(M)
 
+def basis(A,tol=None):
+    """Computes a basis for the range of A
+    Usage
+        W = basis(A,tol=None)
+    Arguments
+        A = matrix
+    Keyword Arguments
+        tol = tolerance for rank determination
+              None yields the default tolerance
+    Returns
+        W = a matrix who's columns 
+            form a basis for R(A) 
+    """
+    U,L,V = svd(A)
+    eps = finfo(float).eps
+    if tol == None:
+        tol = L.max()*max(A.shape)*eps
+    d = next( (i for i,s in enumerate(L) if s<=tol), len(L) )
+    return U[:,:d]
+    
+
 ##################################################
 # Reshaping
 ##################################################
@@ -185,6 +206,8 @@ def as_dim(Lam,eps=2.5):
     else:
         return Gp.index(gap)+1
 
+
+    
 # Subspace inclusion
 def incl(W,A,tol=None):
     """Checks if the space spanned by W is 
@@ -201,12 +224,7 @@ def incl(W,A,tol=None):
         0 iff R(W)\in R(A)
     """
     # Build a basis for R(A)
-    U,L,V = svd(A)
-    eps = finfo(float).eps
-    if tol == None:
-        tol = L.max()*max(A.shape)*eps
-    d = next( (i for i,s in enumerate(L) if s<=tol), len(L) )
-    Ap = U[:,:d]
+    Ap = basis(A,tol=tol)
     # Perform inclusion test    
     return sum(lstsq(Ap,W)[1])
     
