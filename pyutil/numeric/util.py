@@ -186,7 +186,7 @@ def as_dim(Lam,eps=2.5):
         return Gp.index(gap)+1
 
 # Subspace inclusion
-def incl(W,A):
+def incl(W,A,tol=1e-6):
     """Checks if the space spanned by W is 
     included in the space spanned by A
     Usage
@@ -194,12 +194,25 @@ def incl(W,A):
     Arguments
         W = m x k matrix
         A = m x n matrix
+    Keyword Arguments
+        tol = tolerance for matrix rank of A
     Returns
         res = subspace inclusion value; 
         0 iff R(W)\in R(A)
     """
-    res = lstsq(A,W)
-    return sum(res[1])
+    # Build a basis for R(A)
+    Q,R = qr(A); L = diag(R)
+    print("L = \n{}".format(L))
+    d = next( (i for i,x in enumerate(L) if abs(x)<=tol), len(L) )
+    print("d = {}".format(d))
+    Ap = Q[:,:d]
+    # Perform inclusion test
+    # res = 0
+    # for i in range(W.shape[1]):
+        
+    #     res += lstsq(Ap,W[:,i])[1]
+    
+    return sum(lstsq(Ap,W)[1])
     
 ##################################################
 # Normalization
@@ -350,7 +363,19 @@ if __name__ == "__main__":
     # print("x^TAy = {}".format(quad(x,A,y)))
 
     # Test subspace inclusion
-    A = np.arange(9).reshape((-1,3))
-    u = col(np.ones(3))
-    res = incl(u,A)
-    print("res = {}".format(res))
+    np.random.seed(0)
+    # A = np.random.random((3,3)) # square, full rank
+    # A = np.random.random((3,5)) # Fat, full rank
+    # Ap= A[:,0:-1]
+    A = np.eye(3); A[:,2] = np.array([0,1,1e-6]) # Nearly singular
+    Ap= A
+    
+    u1= col(A[:,0])
+    u2= col(A[:,1])
+    u3= col(A[:,2])
+    res1 = incl(u1,Ap)
+    res2 = incl(u2,Ap)
+    res3 = incl(u3,Ap)
+    print("res1 = {}".format(res1))
+    print("res2 = {}".format(res2))
+    print("res3 = {}".format(res3))
