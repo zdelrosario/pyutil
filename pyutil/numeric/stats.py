@@ -1,6 +1,7 @@
 from numpy import cov, mean, array, diag, argsort, zeros, eye, sqrt
 from numpy import errstate, true_divide, isfinite
 from scipy.linalg import svd, eig
+from util import norm_col
 
 def div0( a, b ):
     """Numpy vector division a / b 
@@ -66,7 +67,7 @@ def dr_sir(Y,X,H=15):
     # Sort
     Jnd = argsort(L)[::-1]      # Descending
     # Transform
-    B_h = sig_ir.dot(W[:,Jnd])
+    B_h = norm_col( sig_ir.dot(W[:,Jnd]) )
 
     return B_h, L[Jnd]
 
@@ -98,13 +99,15 @@ def dr_save(Y,X,H=15):
     # Sort
     Jnd = argsort(L)[::-1]      # Descending
     # Transform
-    B_h = sig_ir.dot(W[:,Jnd])
+    B_h = norm_col( sig_ir.dot(W[:,Jnd]) )
 
     return B_h, L[Jnd]
 
 if __name__ == "__main__":
     # Setup
     import numpy as np
+    np.set_printoptions(precision=3)
+
     n = int(301)                    # Number of samples
     H = 15                          # Slices for range
     # Problem
@@ -120,3 +123,12 @@ if __name__ == "__main__":
     B_sir, L_sir = dr_sir(Y_s,X_s)
     # Test SAVE
     B_save, L_save = dr_save(Y_s,X_s)
+
+    # Print results
+    print("")
+    print("Results:")
+    print("L_sir  = {}".format(L_sir))
+    print("L_save = {}".format(L_save))
+    print("B_sir  = \n{}".format(B_sir))
+    print("B_save = \n{}".format(B_save))
+    print("")
