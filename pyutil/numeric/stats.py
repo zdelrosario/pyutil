@@ -32,6 +32,7 @@ def dr_sir(Y,X,H=15):
       B = Estimate of Central Subspace
       L = Eigenvalues of M_h
     """
+    n = len(Y)
     # Sample statistics
     sig_xx = cov(X, rowvar=False) # Columns are variables
     x_bar  = mean(X, axis=0)
@@ -40,9 +41,9 @@ def dr_sir(Y,X,H=15):
     val = div0(1,L); val[L<1e-16] = 0
     sig_ir = V.dot(diag(val).dot(V.T))
     # Standardize
-    Z = array([sig_ir.dot(x-x_bar) for x in X_s])
+    Z = array([sig_ir.dot(x-x_bar) for x in X])
     # Slice the response
-    Ind = argsort(Y_s)
+    Ind = argsort(Y)
     num = n / H
     I_h = [Ind[i*num:(i+1)*num] for i in range(H-1)]
     I_h.append(Ind[(H-1)*num:]) 
@@ -51,11 +52,14 @@ def dr_sir(Y,X,H=15):
     # Compute slice sample means
     D_h = array( [mean(Z[I_h[i]],axis=0) for i in range(H)] )
     # Compute weighted PCA
-    M_h = D_h.T.dot( np.diag(P_h).dot( D_h) )
+    M_h = D_h.T.dot( diag(P_h).dot( D_h) )
     L,W = eig(M_h)
-    B_h = sig_ir.dot(W)
+    # Sort
+    Jnd = argsort(L)[::-1]      # Descending
+    # Transform
+    B_h = sig_ir.dot(W[:,Jnd])
 
-    return B_h, L
+    return B_h, L[Jnd]
 
 def dr_save(Y,X,H=15):
     """Sliced Average Variance Estimation
@@ -72,6 +76,7 @@ def dr_save(Y,X,H=15):
       B = Estimate of Central Subspace
       L = Eigenvalues of M_h
     """
+    n = len(Y)
     # Sample statistics
     sig_xx = cov(X, rowvar=False) # Columns are variables
     x_bar  = mean(X, axis=0)
@@ -80,9 +85,9 @@ def dr_save(Y,X,H=15):
     val = div0(1,L); val[L<1e-16] = 0
     sig_ir = V.dot(diag(val).dot(V.T))
     # Standardize
-    Z = array([sig_ir.dot(x-x_bar) for x in X_s])
+    Z = array([sig_ir.dot(x-x_bar) for x in X])
     # Slice the response
-    Ind = argsort(Y_s)
+    Ind = argsort(Y)
     num = n / H
     I_h = [Ind[i*num:(i+1)*num] for i in range(H-1)]
     I_h.append(Ind[(H-1)*num:]) 
@@ -96,9 +101,12 @@ def dr_save(Y,X,H=15):
     for ind in range(len(S_h)):
         M_h += P_h[ind]/n * (I-S_h[ind]).dot(I-S_h[ind].T)
     L,W = eig(M_h)
-    B_h = sig_ir.dot(W)
+    # Sort
+    Jnd = argsort(L)[::-1]      # Descending
+    # Transform
+    B_h = sig_ir.dot(W[:,Jnd])
 
-    return B_h, L
+    return B_h, L[Jnd]
 
 if __name__ == "__main__":
     # Setup
