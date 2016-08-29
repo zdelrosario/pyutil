@@ -40,7 +40,7 @@ def slice(Y,X,H):
     # Compute proportions
     P_h = array( [float(len(idx)) for idx in I_h] )
 
-    return Z, P_h, I_h, sig_ir
+    return Z, P_h, I_h, sig_ir, n
 
 def dr_sir(Y,X,H=15):
     """Sliced Inverse Regression
@@ -57,7 +57,7 @@ def dr_sir(Y,X,H=15):
       L = Eigenvalues of M_h
     """
     # Slice range
-    Z, P_h, I_h, sig_ir = slice(Y,X,H)
+    Z, P_h, I_h, sig_ir, n = slice(Y,X,H)
     # Compute slice sample means
     D_h = array( [mean(Z[I_h[i]],axis=0) for i in range(H)] )
     # Compute weighted PCA
@@ -86,7 +86,7 @@ def dr_save(Y,X,H=15):
       L = Eigenvalues of M_h
     """
     # Slice range
-    Z, P_h, I_h, sig_ir = slice(Y,X,H)
+    Z, P_h, I_h, sig_ir, n = slice(Y,X,H)
     # Compute slice sample variances
     S_h = [cov(Z[I_h[i]],rowvar=False) for i in range(H)]
     # Compute weighted PCA
