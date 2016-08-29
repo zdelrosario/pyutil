@@ -1,4 +1,4 @@
-from numpy import cov, mean, array, diag, argsort, zeros, eye
+from numpy import cov, mean, array, diag, argsort, zeros, eye, sqrt
 from numpy import errstate, true_divide, isfinite
 from scipy.linalg import svd, eig
 
@@ -28,7 +28,7 @@ def slice(Y,X,H):
     x_bar  = mean(X, axis=0)
     # Find inverse sqrt of sig_xx
     V,L,_ = svd(sig_xx)
-    val = div0(1,L); val[L<1e-16] = 0
+    val = div0(1,sqrt(L)); val[L<1e-16] = 0
     sig_ir = V.dot(diag(val).dot(V.T))
     # Standardize
     Z = array([sig_ir.dot(x-x_bar) for x in X])
