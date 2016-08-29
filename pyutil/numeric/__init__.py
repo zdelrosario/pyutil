@@ -1,6 +1,9 @@
-from barrier import *
-from fit_gp import *
-from integrate import *
-from interior import *
-from poly import *
+from barrier import inv_barrier, log_barrier, ext_obj, feasible
+from fit_gp import fit_gp
+from integrate import prod, part_prod, cubature_data, cubature
+from integrate import cubature_hermite, cubature_legendre, cubature_rule
+from integrate import normalize_function
+from interior import constrained_opt
+from poly import tpolyval, tlegendre, tfcn, tleg
 from util import *
+from stats import dr_sir, dr_save
