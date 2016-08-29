@@ -18,21 +18,11 @@ def div0( a, b ):
         c[ ~ isfinite( c )] = 0  # -inf inf NaN
     return c
 
-def dr_sir(Y,X,H=15):
-    """Sliced Inverse Regression
-    'Sliced Inverse Regression for Dimension Reduction', K. Li
-    Usage
-      B,L = dr_sir(Y,X)
-    Arguments
-      Y = Response samples
-      X = Predictor samples
-    Keyword Arguments
-      H = number of slices
-    Returns
-      B = Estimate of Central Subspace
-      L = Eigenvalues of M_h
-    """
+def slice(Y,X,H):
+    # Check input consistency
     n = len(Y)
+    if n != X.shape[0]:
+        raise ValueError("len(Y) and X.shape[0] do not match!")
     # Sample statistics
     sig_xx = cov(X, rowvar=False) # Columns are variables
     x_bar  = mean(X, axis=0)
@@ -49,6 +39,25 @@ def dr_sir(Y,X,H=15):
     I_h.append(Ind[(H-1)*num:]) 
     # Compute proportions
     P_h = array( [float(len(idx)) for idx in I_h] )
+
+    return Z, P_h, I_h, sig_ir
+
+def dr_sir(Y,X,H=15):
+    """Sliced Inverse Regression
+    'Sliced Inverse Regression for Dimension Reduction', K. Li
+    Usage
+      B,L = dr_sir(Y,X)
+    Arguments
+      Y = Response samples
+      X = Predictor samples, rows are samples
+    Keyword Arguments
+      H = number of slices
+    Returns
+      B = Estimate of Central Subspace
+      L = Eigenvalues of M_h
+    """
+    # Slice range
+    Z, P_h, I_h, sig_ir = slice(Y,X,H)
     # Compute slice sample means
     D_h = array( [mean(Z[I_h[i]],axis=0) for i in range(H)] )
     # Compute weighted PCA
@@ -69,35 +78,20 @@ def dr_save(Y,X,H=15):
       B,L = dr_save(Y,X)
     Arguments
       Y = Response samples
-      X = Predictor samples
+      X = Predictor samples, rows are samples
     Keyword Arguments
       H = number of slices
     Returns
       B = Estimate of Central Subspace
       L = Eigenvalues of M_h
     """
-    n = len(Y)
-    # Sample statistics
-    sig_xx = cov(X, rowvar=False) # Columns are variables
-    x_bar  = mean(X, axis=0)
-    # Find inverse sqrt of sig_xx
-    V,L,_ = svd(sig_xx)
-    val = div0(1,L); val[L<1e-16] = 0
-    sig_ir = V.dot(diag(val).dot(V.T))
-    # Standardize
-    Z = array([sig_ir.dot(x-x_bar) for x in X])
-    # Slice the response
-    Ind = argsort(Y)
-    num = n / H
-    I_h = [Ind[i*num:(i+1)*num] for i in range(H-1)]
-    I_h.append(Ind[(H-1)*num:]) 
-    # Compute proportions
-    P_h = array( [float(len(idx)) for idx in I_h] )
-    # Compute slice sample means
+    # Slice range
+    Z, P_h, I_h, sig_ir = slice(Y,X,H)
+    # Compute slice sample variances
     S_h = [cov(Z[I_h[i]],rowvar=False) for i in range(H)]
     # Compute weighted PCA
-    M_h = zeros(sig_xx.shape)
-    I   = eye(sig_xx.shape[0])
+    M_h = zeros(sig_ir.shape)
+    I   = eye(sig_ir.shape[0])
     for ind in range(len(S_h)):
         M_h += P_h[ind]/n * (I-S_h[ind]).dot(I-S_h[ind].T)
     L,W = eig(M_h)
