@@ -113,7 +113,7 @@ if __name__ == "__main__":
     # Problem
     # Test case taken from (Hardle, Simar), Ch. 18.3 SIR
     m = 3                           # Ambient dimensionality
-    B = np.array([[1,-1,-1],[1,1,1]]).T
+    B = np.array([[1,1,1],[1,-1,-1]]).T
     fcn = lambda x: B[:,0].dot(x) + (B[:,0].dot(x))**3 + 4*(B[:,1].dot(x))**2 + \
           np.random.normal()
     # Data
