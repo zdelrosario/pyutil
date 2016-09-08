@@ -4,25 +4,52 @@
 # Necessary imports
 from scipy.linalg import svd
 from scipy import compress, transpose
-from numpy import pad, abs, finfo
+from numpy import pad, abs, finfo, array
 from numpy import eye, concatenate
 from numpy.linalg import norm, qr, matrix_rank, lstsq
 from numpy.random import randint
-from numpy import dot
+from numpy import dot, empty, size, __name__
 from numpy import atleast_2d, squeeze
 from numpy import ravel
 from numpy import reshape
 from numpy import zeros, shape, nonzero
 from math import log
 from numpy import diag
+from math import factorial as fac
 import copy
 
 ##################################################
 # Computation
 ##################################################
-from math import factorial as fac
+# Combination
 def nCr(n,r):
     return fac(n) / fac(r) / fac(n-r)
+
+# Simple finite-difference gradient computation
+def grad(x,f,f0=None,h=None):
+    # Set default FD step size
+    if h==None:
+        h = finfo(float).eps
+
+    # If necessary, calculate f(x)
+    if f0:
+        pass
+    else:
+        f0 = f(x)
+
+    # Ensure query point is np.array
+    if type(x).__module__ == __name__:
+        pass
+    else:
+        x = array(x)
+
+    # Calculate gradient
+    dF = empty(size(x)) # Reserve space
+    E  = eye(size(x))   # Standard basis
+    for i in range(size(x)):
+        dF[i] = (f(x+E[:,i]*h)-f0)/h
+
+    return dF
 
 ##################################################
 # Linear Algebra
@@ -94,8 +121,8 @@ def basis(A,tol=None):
         tol = tolerance for rank determination
               None yields the default tolerance
     Returns
-        W = a matrix who's columns 
-            form a basis for R(A) 
+        W = a matrix who's columns
+            form a basis for R(A)
     """
     U,L,V = svd(A)
     eps = finfo(float).eps
@@ -139,7 +166,7 @@ def vec(A):
     Arguments
         A = matrix of size n x m
     Returns
-        v = vector of size n*m, stacked 
+        v = vector of size n*m, stacked
             columns of A
     """
     return col(ravel(A))
@@ -167,7 +194,7 @@ def unvec(v,n):
 # from numpy import dot
 def subspace_distance(W1,W2):
     """Computes the subspace distance
-    Note that provided matrices must 
+    Note that provided matrices must
     have orthonormal columns
     Usage
         res = subspace_distance(W1,W2)
@@ -181,7 +208,7 @@ def subspace_distance(W1,W2):
 
 # Active Subspace Dimension
 def as_dim(L,eps=2.0):
-    """Finds the dimension of the 
+    """Finds the dimension of the
     most accurate Active Subspace
     Usage
         dim = as_dim(Lam)
@@ -194,10 +221,10 @@ def as_dim(L,eps=2.0):
     """
     # Find first sufficiently-large eval gap
     return next( (i+1 for i,s in enumerate(L[:-1]) if log(L[i]/L[i+1],10)>=eps), len(L) )
-    
+
 # Subspace inclusion
 def incl(W,A,tol=None):
-    """Checks if the space spanned by W is 
+    """Checks if the space spanned by W is
     included in the space spanned by A
     Usage
         res = incl(W,A)
@@ -207,14 +234,14 @@ def incl(W,A,tol=None):
     Keyword Arguments
         tol = tolerance for matrix rank of A
     Returns
-        res = subspace inclusion value; 
+        res = subspace inclusion value;
         0 iff R(W)\in R(A)
     """
     # Build a basis for R(A)
     Ap = basis(A,tol=tol)
-    # Perform inclusion test    
+    # Perform inclusion test
     return sum(lstsq(Ap,W)[1])
-    
+
 ##################################################
 # Normalization
 ##################################################
@@ -240,7 +267,7 @@ def norm_col(M):
             pass
     return E
 
-    
+
 # Rounds by smallest non-zero magnitude vector element
 # from numpy import zeros, shape, nonzero
 def round_out(M):
@@ -332,7 +359,7 @@ if __name__ == "__main__":
     Lam3 = [1e3,0.9e3,1e1,1e0] # should be 2D
     Lam4 = [1e4,0.9e3,0.8e3,1e0] # should be 3D
     Lam5 = [1e3,0.9e3,0.8e3,0.7e3] # should be 4D
-    
+
     print("AS 1 dim={}, expected={}".format(as_dim(Lam1,eps=1.5),2))
     print("AS 2 dim={}, expected={}".format(as_dim(Lam2,eps=1.5),1))
     print("AS 3 dim={}, expected={}".format(as_dim(Lam3,eps=1.5),2))
@@ -371,7 +398,7 @@ if __name__ == "__main__":
 
     # A = np.eye(3); A[:,2] = np.array([0,1,1e-6]) # Nearly singular
     # Ap= A
-    
+
     # u1= col(A[:,0])
     # u2= col(A[:,1])
     # u3= col(A[:,2])
