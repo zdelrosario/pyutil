@@ -11,7 +11,7 @@ def dr_smoothness(Y,X,k=6):
       X = re-parameterized predictor variables
     Keyword Arguments
       k = number of neighbors for computation,
-          default k = 6
+          default k = 6, bound 1 < k
     Returns
       dist = smoothness values
 
@@ -30,5 +30,5 @@ def dr_smoothness(Y,X,k=6):
         r = sum( [abs(Y[ii]-Y[jj]) for jj in N[1]] ) / k
         # Add normalized distance
         dist.append(r / ran)
-        
+
     return dist
