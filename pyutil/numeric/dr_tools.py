@@ -59,6 +59,19 @@ def inter(*arg):
     else:
         raise ValueError("Must provide at least two lists")
 
+def array_comp(S,m=None):
+    """Computes the complement of an integer list
+    """
+    # Assume m from max element
+    if m == None:
+        m = max(S)
+    # Compute complement
+    I = sorted(set(S))  # Sorted and de-duplicated
+    mask = np.ones(m,dtype=bool); mask[I] = 0
+    Sc = np.arange(m)[mask]
+
+# Currently bugged out! Scaling is wrong, such that elements can add up to more
+# than the total variance
 def dr_anova(Y,X,k=5):
     """Measures quality of a dimension reduction
     by accounting for variance contributions
@@ -101,5 +114,48 @@ def dr_anova(Y,X,k=5):
     for i in range(m):
         # S.append( k**(m-1)*N_m[i][j]/S_t * np.sum([ (Y_m[i][j]-Y_g)**2 for j in range(k) ]) )
         S.append( np.sum([ (Y_m[i][j]-Y_g)**2 for j in range(k) ]) )
+
+    return S
+
+def dr_sobol(fcn,X1,X2,Y1=None):
+    """Computes the total Sobol indices using the MC method described in
+    'Polynomial chaos expansion for sensitivity analysis', Crestaux, T. et. al.
+
+    Usage
+        S = dr_sobol(fcn,X1,X2)
+    Arguments
+        fcn = function handle f(x) for x \in R^m
+        X1 = sample set 1, numpy array
+        X2 = sample set 2, numpy array
+    Returns
+        S = list of total Sobol indices, ordered as input variables x
+
+    @pre X1.shape == X2.shape === (N,m)
+    """
+    N,m = X1.shape
+    # Generate the X1 sample realizations if necessary
+    if Y1 == None:
+        Y1 = []
+        for x in X1:
+            Y1.append(fcn(x))
+        Y1 = np.array(Y1)
+    # Compute the global statistics
+    D_0 = np.mean(Y1)**2
+    D   = np.var(Y1)
+    # Iterate over all input variables
+    S = []
+    for i in range(m):
+        val = 0
+        I = [i]
+        Ic= array_comp(I,m)
+        for j in range(N):
+            # Construct inverleaved sample
+            x = np.zeros(m)
+            x[I] = X2[I]
+            x[Ic]= X1[Ic]
+            # Evaluate
+            val += Y1[j]*fcn(x)/N
+        # Compute total sobol index
+        S.append( 1. - (val-D_0)/D )
 
     return S

@@ -7,4 +7,4 @@ from interior import constrained_opt
 from poly import tpolyval, tlegendre, tfcn, tleg
 from util import *
 from stats import dr_sir, dr_save
-from dr_tools import dr_smoothness, inter, dr_anova
+from dr_tools import dr_smoothness, inter, dr_anova, dr_sobol, array_comp
