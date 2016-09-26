@@ -70,6 +70,8 @@ def array_comp(S,m=None):
     mask = np.ones(m,dtype=bool); mask[I] = 0
     Sc = np.arange(m)[mask]
 
+    return Sc
+
 # Currently bugged out! Scaling is wrong, such that elements can add up to more
 # than the total variance
 def dr_anova(Y,X,k=5):
@@ -151,11 +153,11 @@ def dr_sobol(fcn,X1,X2,Y1=None):
         for j in range(N):
             # Construct inverleaved sample
             x = np.zeros(m)
-            x[I] = X2[I]
-            x[Ic]= X1[Ic]
+            x[I] = X2[j,I]
+            x[Ic]= X1[j,Ic]
             # Evaluate
             val += Y1[j]*fcn(x)/N
         # Compute total sobol index
         S.append( 1. - (val-D_0)/D )
 
-    return S
+    return S, D_0, D, x, I, Ic
