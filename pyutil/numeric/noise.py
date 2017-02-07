@@ -90,10 +90,14 @@ if __name__ == "__main__":
     n = 10
 
     # Set (random) state
-    np.random.seed(0)
-    xb = np.random.random(n)
-    np.random.seed(103)
-    p  = np.random.random(n); p = p/np.linalg.norm(p)
+    # np.random.seed(0)
+    # xb = np.random.random(n)
+    # np.random.seed(103)
+    # p  = np.random.random(n); p = p/np.linalg.norm(p)
+
+    # DEBUG -- set fixed state
+    xb = np.ones(n)
+    p  = np.ones(n); p = p/np.linalg.norm(p)
 
     m = 8
     h = 1e-14
