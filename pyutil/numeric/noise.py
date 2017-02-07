@@ -52,9 +52,11 @@ def ecnoise(fval):
             inform = 2
             return fnoise, level, inform
 
-        gamma = 0.5*( (j+1)/(2*(j+1)-1) )*gamma
+        gamma = 0.5*( (j+1)/float(2*(j+1)-1) )*gamma
+        print("gamma = {}".format(gamma))
 
         # Compute the estimates for the noise level
+        # print("l = {}".format(sqrt( gamma*mean(fval[:-1-j]**2) )))
         level[j] = sqrt( gamma*mean(fval[:-1-j]**2) )
 
         # Determine differences in sign
@@ -63,12 +65,15 @@ def ecnoise(fval):
         if (emin*emax < 0.0):
             dsgn[j] = 1
 
+    # DEBUG
+    # print("dsgn = {}".format(dsgn))
+
     # Determine the noise level
     for k in range(nf-4):
         emin = min(level[k:k+2])
         emax = max(level[k:k+2])
 
-        if (emax<=4*emin and dsgn[k]):
+        if (emax<=4*emin and dsgn[k]==1):
             fnoise = level[k]
             inform = 1
             return fnoise, level, inform
