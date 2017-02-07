@@ -53,7 +53,7 @@ def ecnoise(fval):
             return fnoise, level, inform
 
         gamma = 0.5*( (j+1)/float(2*(j+1)-1) )*gamma
-        print("gamma = {}".format(gamma))
+        # print("gamma = {}".format(gamma))
 
         # Compute the estimates for the noise level
         # print("l = {}".format(sqrt( gamma*mean(fval[:-1-j]**2) )))
