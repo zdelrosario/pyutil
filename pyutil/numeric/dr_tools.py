@@ -160,4 +160,5 @@ def dr_sobol(fcn,X1,X2,Y1=None):
         # Compute total sobol index
         S.append( 1. - (val-D_0)/D )
 
-    return S, D_0, D, x, I, Ic
+    # return S, D_0, D, x, I, Ic
+    return S
