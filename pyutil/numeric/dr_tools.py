@@ -137,10 +137,7 @@ def dr_sobol(fcn,X1,X2,Y1=None):
     N,m = X1.shape
     # Generate the X1 sample realizations if necessary
     if Y1 == None:
-        Y1 = []
-        for x in X1:
-            Y1.append(fcn(x))
-        Y1 = np.array(Y1)
+        Y1 = np.array([ fcn(x) for x in X1 ])
     # Compute the global statistics
     D_0 = np.mean(Y1)**2
     D   = np.var(Y1)
@@ -157,8 +154,35 @@ def dr_sobol(fcn,X1,X2,Y1=None):
             x[Ic]= X1[j,Ic]
             # Evaluate
             val += Y1[j]*fcn(x)/N
+        print("val = {}".format(val))
         # Compute total sobol index
         S.append( 1. - (val-D_0)/D )
 
-    # return S, D_0, D, x, I, Ic
     return S
+
+if __name__ == "__main__":
+    ### Setup
+    import numpy as np
+    import pyutil.numeric as ut
+    import matplotlib.pyplot as plt
+    from scipy.linalg import qr
+
+    n = int(1e3)
+    m = 3
+    ### Define QoI
+    v = np.ones(m) / np.sqrt(m)
+    fcn = lambda x: np.sin(2*np.pi*v.dot(x))
+    ### Simulate an AS run
+    M = np.concatenate((ut.col(v),np.eye(m)),axis=1)
+    W,_ = qr(M,mode='full')
+    ### Run dr_sobol() on reparameterized fcn
+    fcn_p = lambda x: fcn(W.T.dot(x))
+    Xi1 = np.random.random((n,m))*2.-1.
+    Xi2 = np.random.random((n,m))*2.-1.
+
+    S = ut.dr_sobol(fcn_p,Xi1,Xi2)
+
+    print("S_total = \n{}".format(S))
+
+    plt.plot(W[:,0].T.dot(Xi1.T),fcn(Xi1.T),'.')
+    plt.show()
