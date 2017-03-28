@@ -1,16 +1,16 @@
 ### LEGAL STUFF
-# linspecer uses ColorBrewer, 
+# linspecer uses ColorBrewer,
 # which has the following license:
 #
 #   Apache-Style Software License for ColorBrewer software and ColorBrewer Color Schemes
-#   
+#
 #   Copyright (c) 2002 Cynthia Brewer, Mark Harrower, and The Pennsylvania State University.
-#   
+#
 #   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License.
 #   You may obtain a copy of the License at
-#   
+#
 #   http://www.apache.org/licenses/LICENSE-2.0
-#   
+#
 #   Unless required by applicable law or agreed to in writing, software distributed
 #   under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
 #   CONDITIONS OF ANY KIND, either express or implied. See the License for the
@@ -20,17 +20,17 @@
 #
 #   Copyright (c) 2015, Jonathan C. Lansey
 #   All rights reserved.
-#   
+#
 #   Redistribution and use in source and binary forms, with or without
 #   modification, are permitted provided that the following conditions are
 #   met:
-#  
+#
 #       * Redistributions of source code must retain the above copyright
 #         notice, this list of conditions and the following disclaimer.
 #       * Redistributions in binary form must reproduce the above copyright
 #         notice, this list of conditions and the following disclaimer in
 #         the documentation and/or other materials provided with the distribution
-#  
+#
 #   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 #   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 #   IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -42,6 +42,24 @@
 #   CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 #   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 #   POSSIBILITY OF SUCH DAMAGE.
+### OPINION STUFF
+# Lansey
+# credits and where the function came from
+# The colors are largely taken from:
+# http://colorbrewer2.org and Cynthia Brewer, Mark Harrower and The Pennsylvania State University
+#
+#
+# She studied this from a phsychometric perspective and crafted the colors
+# beautifully.
+#
+# I made choices from the many there to decide the nicest once for plotting
+# lines in Matlab. I also made a small change to one of the colors I
+# thought was a bit too bright. In addition some interpolation is going on
+# for the sequential line styles.
+#
+# del Rosario
+# This must be a thing. How can it not.
+##################################################
 
 ### CODE STUFF
 import numpy as np
@@ -60,9 +78,9 @@ def interpomap(n,cmapp):
     return cmap/255.
 
 ### colorm()
-# colorm returns a colormap which is really good 
+# colorm returns a colormap which is really good
 # for creating informative heatmap style figures.
-# No particular color stands out and it doesn't 
+# No particular color stands out and it doesn't
 # do too badly for colorblind people either.
 #
 # It works by interpolating the data from the
@@ -80,9 +98,9 @@ def colorm(n=100):
     else:
         # Predefined colormap
         frac = 0.95; # Yellows out the middle color
-        cmapp = np.array([[158, 1, 66], 
-                          [213, 62, 79], 
-                          [244, 109, 67], 
+        cmapp = np.array([[158, 1, 66],
+                          [213, 62, 79],
+                          [244, 109, 67],
                           [253, 174, 97],
                           [254, 224, 139],
                           [255*frac, 255*frac, 191*frac],
@@ -157,24 +175,17 @@ def linspecer(N, colorBlindFlag=False,qualFlag=False):
     """
     ##################################################
     # by Jonathan Lansey, March 2009-2013
-    # translated to Python Zachary del Rosario, June 2016
+    # translated to Python by Zachary del Rosario, June 2016
     ##################################################
-    # Lansey
-    # credits and where the function came from
-    # The colors are largely taken from:
-    # http://colorbrewer2.org and Cynthia Brewer, Mark Harrower and The Pennsylvania State University
-    # 
-    # 
-    # She studied this from a phsychometric perspective and crafted the colors
-    # beautifully.
-    # 
-    # I made choices from the many there to decide the nicest once for plotting
-    # lines in Matlab. I also made a small change to one of the colors I
-    # thought was a bit too bright. In addition some interpolation is going on
-    # for the sequential line styles.
-    # 
-    # del Rosario
-    # This must be a thing. How can it not.
+    # Usage
+    #    C = linspecer(N, colorBlindFlag=False, qualFlag=False)
+    #    plt.plot( X[ind], Y[ind], color=C[ind] )
+    # Arguments
+    #    N              = number of colors to generate
+    #    colorBlindFlag = use colorblind-friendly colors
+    #    qualFlag       = force qualitative graphs
+    # Returns
+    #    C              = array of RGB triplets
     ##################################################
     """
 
@@ -213,7 +224,7 @@ def linspecer(N, colorBlindFlag=False,qualFlag=False):
     # set3   = dim(set3,0.93)
     # set1JL = brighten(set1JL)
     # set1   = brighten(set1,0.8)
-    
+
     # Colorblind mode
     if colorBlindFlag:
         if N <= 4:
@@ -236,7 +247,7 @@ def linspecer(N, colorBlindFlag=False,qualFlag=False):
             else:
                 return colorm(N)
         else:
-            # 
+            #
             return colorm(N)
 
 # TEST
