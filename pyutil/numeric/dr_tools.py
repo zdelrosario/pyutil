@@ -154,7 +154,6 @@ def dr_sobol(fcn,X1,X2,Y1=None):
             x[Ic]= X1[j,Ic]
             # Evaluate
             val += Y1[j]*fcn(x)/N
-        print("val = {}".format(val))
         # Compute total sobol index
         S.append( 1. - (val-D_0)/D )
 
@@ -167,8 +166,10 @@ if __name__ == "__main__":
     import matplotlib.pyplot as plt
     from scipy.linalg import qr
 
+    np.set_printoptions(precision=3)
+
     n = int(1e3)
-    m = 3
+    m = 6
     ### Define QoI
     v = np.ones(m) / np.sqrt(m)
     fcn = lambda x: np.sin(2*np.pi*v.dot(x))
@@ -176,13 +177,13 @@ if __name__ == "__main__":
     M = np.concatenate((ut.col(v),np.eye(m)),axis=1)
     W,_ = qr(M,mode='full')
     ### Run dr_sobol() on reparameterized fcn
-    fcn_p = lambda x: fcn(W.T.dot(x))
+    fcn_p = lambda xi: fcn(W.dot(xi))
     Xi1 = np.random.random((n,m))*2.-1.
     Xi2 = np.random.random((n,m))*2.-1.
 
     S = ut.dr_sobol(fcn_p,Xi1,Xi2)
 
-    print("S_total = \n{}".format(S))
+    print("S_total = \n{}".format(np.array(S)))
 
-    plt.plot(W[:,0].T.dot(Xi1.T),fcn(Xi1.T),'.')
-    plt.show()
+    # plt.plot(W[:,0].T.dot(Xi1.T),fcn(Xi1.T),'.')
+    # plt.show()
