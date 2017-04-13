@@ -16,7 +16,53 @@ from numpy import zeros, shape, nonzero
 from math import log
 from numpy import diag
 from math import factorial as fac
+from numpy import sqrt
+from numpy import savetxt, loadtxt
 import copy
+
+##################################################
+# String handling
+##################################################
+def find_between_l( s, first, last):
+    # Finds the first occurence of a substring between first and last
+    try:
+        start = s.index( first ) + len( first )
+        end   = s.index( last, start )
+        return s[start:end]
+    except ValueError:
+        return ""
+
+def find_between_r( s, first, last):
+    # Finds the last occurence of a substring between first and last
+    try:
+        start = s.rindex( first ) + len( first )
+        end   = s.rindex( last, start )
+        return s[start:end]
+    except ValueError:
+        return ""
+
+##################################################
+# I/O
+##################################################
+# from numpy import savetxt
+def savetxtmd(filename,array,**kwd_param):
+    # Saves a multi-dimensional numpy array to a human-readable .txt
+    with file(filename,'w') as outfile:
+        outfile.write("#Shape = {0}\n".format(array.shape))
+        for array_slice in array:
+            savetxt(outfile, array_slice, **kwd_param)
+            outfile.write("#\n")
+
+# from numpy import loadtxt
+def loadtxtmd(filename,**kwd_param):
+    # Loads a multi-dimensional numpy array from formatted .txt
+
+    # Read the header
+    with file(filename,'r') as infile:
+        shape = [int(x) for x in find_between_l(infile.readline(),'(',')').split(',')]
+
+    data = loadtxt(filename,**kwd_param)
+    return data.reshape(shape)
 
 ##################################################
 # Computation
@@ -29,7 +75,7 @@ def nCr(n,r):
 def grad(x,f,f0=None,h=None):
     # Set default FD step size
     if h==None:
-        h = finfo(float).eps
+        h = sqrt(finfo(float).eps)
 
     # If necessary, calculate f(x)
     if f0:
@@ -347,6 +393,20 @@ def bootstrap_resample(X, n=None):
 if __name__ == "__main__":
     import numpy as np
 
+    ### Test savetxtmd and loadtxtmd
+    A = np.arange(24).reshape((2,3,4))
+    B = np.arange(24).reshape((3,2,4))
+    C = np.arange(24).reshape((4,2,3))
+
+    savetxtmd('A.txt',A); savetxtmd('B.txt',B); savetxtmd('C.txt',C)
+    Al = loadtxtmd('A.txt')
+    Bl = loadtxtmd('B.txt')
+    Cl = loadtxtmd('C.txt')
+
+    assert np.all( A==Al )
+    assert np.all( B==Bl )
+    assert np.all( C==Cl )
+
     ### Test vec and unvec
     # A = np.arange(9); A.shape=(3,3)
     # v = vec(A)
@@ -354,17 +414,17 @@ if __name__ == "__main__":
     # print(M)
 
     ### Test as_dim
-    Lam1 = [1,0.9] # Should be 2D
-    Lam2 = [1e3,1e1,0.5e1,1e0] # should be 1D
-    Lam3 = [1e3,0.9e3,1e1,1e0] # should be 2D
-    Lam4 = [1e4,0.9e3,0.8e3,1e0] # should be 3D
-    Lam5 = [1e3,0.9e3,0.8e3,0.7e3] # should be 4D
+    # Lam1 = [1,0.9] # Should be 2D
+    # Lam2 = [1e3,1e1,0.5e1,1e0] # should be 1D
+    # Lam3 = [1e3,0.9e3,1e1,1e0] # should be 2D
+    # Lam4 = [1e4,0.9e3,0.8e3,1e0] # should be 3D
+    # Lam5 = [1e3,0.9e3,0.8e3,0.7e3] # should be 4D
 
-    print("AS 1 dim={}, expected={}".format(as_dim(Lam1,eps=1.5),2))
-    print("AS 2 dim={}, expected={}".format(as_dim(Lam2,eps=1.5),1))
-    print("AS 3 dim={}, expected={}".format(as_dim(Lam3,eps=1.5),2))
-    print("AS 4 dim={}, expected={}".format(as_dim(Lam4,eps=1.5),3))
-    print("AS 5 dim={}, expected={}".format(as_dim(Lam5,eps=1.5),4))
+    # print("AS 1 dim={}, expected={}".format(as_dim(Lam1,eps=1.5),2))
+    # print("AS 2 dim={}, expected={}".format(as_dim(Lam2,eps=1.5),1))
+    # print("AS 3 dim={}, expected={}".format(as_dim(Lam3,eps=1.5),2))
+    # print("AS 4 dim={}, expected={}".format(as_dim(Lam4,eps=1.5),3))
+    # print("AS 5 dim={}, expected={}".format(as_dim(Lam5,eps=1.5),4))
 
     ### Test subspace_distance
     # M = np.
