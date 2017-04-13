@@ -44,6 +44,8 @@ def find_between_r( s, first, last):
 ##################################################
 # I/O
 ##################################################
+# Following: http://stackoverflow.com/questions/3685265/how-to-write-a-multidimensional-array-to-a-text-file
+
 # from numpy import savetxt
 def savetxtmd(filename,array,**kwd_param):
     # Saves a multi-dimensional numpy array to a human-readable .txt
