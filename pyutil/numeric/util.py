@@ -56,7 +56,7 @@ def grad(x,f,f0=None,h=None):
 ##################################################
 
 # Quadratic form
-def quad(x,A,y=[]):
+def quad(x,A,y=None):
     """Computes the quadratic x^T A y
     Usage
         res = quad(x,A)
@@ -68,7 +68,7 @@ def quad(x,A,y=[]):
     Returns
         res = x^T A y
     """
-    if not any(y):
+    if y is None:
         return (x.T.dot(A)*x.T).sum(axis=1)[0]
     else:
         return (x.T.dot(A)*y.T).sum(axis=1)[0]
