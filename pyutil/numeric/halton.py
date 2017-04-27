@@ -123,7 +123,7 @@ def qmc_norm(n,m,mu=None,var=None):
     Xi = qmc_unif(n,m)
     # Map via inverse cdf
     for i in range(m):
-        Xi[:,i] = norm.ppf(Xi[:,i], loc=mu[i], scale=var[i])
+        Xi[:,i] = norm.ppf(Xi[:,i], loc=mu[i], scale=np.sqrt(var[i]))
     return Xi
 
 if __name__ == "__main__":
@@ -131,10 +131,11 @@ if __name__ == "__main__":
 
     n = int(1e3)
     Xi_u = 2*qmc_unif(n,2) - 1
-    Xi_n = qmc_norm(n,2)
+    Xi_n = qmc_norm(n,2,var=[1.0,0.5])
 
     plt.figure()
     plt.plot(Xi_u[:,0],Xi_u[:,1],'bo')
     plt.plot(Xi_n[:,0],Xi_n[:,1],'ro')
+    plt.xlim((-4,4)); plt.ylim((-4,4))
 
     plt.show()
