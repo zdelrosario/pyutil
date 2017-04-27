@@ -10,3 +10,4 @@ from stats import dr_sir, dr_save
 from dr_tools import dr_smoothness, inter, dr_anova, dr_sobol, array_comp
 from noise import ecnoise
 from print_progress import print_progress
+from halton import halton, qmc_unif, qmc_norm
