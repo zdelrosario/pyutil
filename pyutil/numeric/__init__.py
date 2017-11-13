@@ -6,7 +6,7 @@ from integrate import normalize_function
 from interior import constrained_opt
 from poly import tpolyval, tlegendre, tfcn, tleg
 from util import *
-from stats import dr_sir, dr_save
+from stats import dr_sir, dr_save, hotelling
 from dr_tools import dr_smoothness, inter, dr_anova, dr_sobol, array_comp
 from noise import ecnoise
 from print_progress import print_progress
