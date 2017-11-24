@@ -1,10 +1,11 @@
-from numpy import cov, mean, array, diag, argsort, zeros, eye, sqrt
+from numpy import cov, mean, array, diag, argsort, zeros, eye, sqrt, dot
 from numpy import errstate, true_divide, isfinite
-from scipy.linalg import svd, eig
+from scipy.linalg import svd, eig, solve
+from scipy.stats import f
 from util import norm_col
 
 def div0( a, b ):
-    """Numpy vector division a / b 
+    """Numpy vector division a / b
     ignoring divide by zero errors
     Usage
       q = div0( a, b )
@@ -37,7 +38,7 @@ def slice(Y,X,H):
     Ind = argsort(Y)
     num = n / H
     I_h = [Ind[i*num:(i+1)*num] for i in range(H-1)]
-    I_h.append(Ind[(H-1)*num:]) 
+    I_h.append(Ind[(H-1)*num:])
     # Compute proportions
     P_h = array( [float(len(idx)) for idx in I_h] )
 
@@ -102,6 +103,25 @@ def dr_save(Y,X,H=15):
     B_h = norm_col( sig_ir.dot(W[:,Jnd]) )
 
     return B_h, L[Jnd]
+
+def hotelling(X):
+    # Perform Hotelling's T^2 test on a dataset
+    #
+    # Usage
+    #   pval = hotelling(X)
+    # Arguments
+    #   X    = rows are vector data
+    # Returns
+    #   pval = p-value under H0: bar(X) = 0
+
+    xbar = mean(X,axis=1)
+    W    = cov(X)
+    k, n = X.shape
+    t2   = n * dot( xbar, solve(W,xbar) )
+    fst  = (n-k)*t2 / ((n-1)*k)
+    pval = 1 - f.cdf(fst,k,n-k)
+
+    return pval
 
 if __name__ == "__main__":
     # Setup
