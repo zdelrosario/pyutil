@@ -200,7 +200,7 @@ def multiest(fcn,x0,eps_f):
     ## Run for each input
     inform = 1
     m = x0.shape[0]
-    H = [0] * m
+    H = zeros(m)
     I = eye(m)
     for ind in range(m):
         fcn_tmp = lambda t: fcn(x0+I[ind]*t)
@@ -211,6 +211,7 @@ def multiest(fcn,x0,eps_f):
 ### Test functions
 if __name__ == "__main__":
     import numpy as np
+    import pyutil.numeric as ut
 
     fcn = lambda x: np.linalg.norm(x)
     n = 10
@@ -261,3 +262,5 @@ if __name__ == "__main__":
     H, inform4 = multiest(fcn,x0,eps_f)
 
     print("H = {0:}".format(H))
+
+    G = ut.grad(x0,fcn,h=H)
