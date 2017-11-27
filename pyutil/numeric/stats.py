@@ -110,7 +110,7 @@ def hotelling(X):
     # Usage
     #   pval = hotelling(X)
     # Arguments
-    #   X    = rows are vector data
+    #   X    = columns are vector data
     # Returns
     #   pval = p-value under H0: bar(X) = 0
 

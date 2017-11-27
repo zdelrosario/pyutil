@@ -4,7 +4,7 @@
 # Necessary imports
 from scipy.linalg import svd
 from scipy import compress, transpose
-from numpy import pad, abs, finfo, array
+from numpy import pad, abs, finfo, array, ndarray
 from numpy import eye, concatenate
 from numpy.linalg import norm, qr, matrix_rank, lstsq
 from numpy.random import randint
@@ -75,8 +75,20 @@ def nCr(n,r):
 
 # Simple finite-difference gradient computation
 def grad(x,f,f0=None,h=None):
+    """Finite-difference subroutine
+
+    Usage
+        G = grad(x,f,f0=None,h=None)
+    Arguments
+        x  = base point; x \in R^n
+        f  = multivariate function; f : R^n -> R
+        f0 = f evaluated at base point; optional
+        h  = single or multiple stepsize; h \in R or R^n
+
+    @pre isinstance(x, np.ndarray)
+    """
     # Set default FD step size
-    if h==None:
+    if h is None:
         h = sqrt(finfo(float).eps)
 
     # If necessary, calculate f(x)
@@ -94,8 +106,15 @@ def grad(x,f,f0=None,h=None):
     # Calculate gradient
     dF = empty(size(x)) # Reserve space
     E  = eye(size(x))   # Standard basis
-    for i in range(size(x)):
-        dF[i] = (f(x+E[:,i]*h)-f0)/h
+
+    # Multiple stepsizes
+    if isinstance(h, ndarray):
+        for i in range(size(x)):
+            dF[i] = (f(x+E[:,i]*h[i]-f0))/h[i]
+    # Single stepsize
+    else:
+        for i in range(size(x)):
+            dF[i] = (f(x+E[:,i]*h)-f0)/h
 
     return dF
 
