@@ -127,8 +127,9 @@ def dr_sobol(fcn,X1,X2,Y1=None):
         S = dr_sobol(fcn,X1,X2)
     Arguments
         fcn = function handle f(x) for x \in R^m
-        X1 = sample set 1, numpy array
-        X2 = sample set 2, numpy array
+        X1  = sample set 1, numpy array
+        X2  = sample set 2, numpy array
+        Y1  = function values for X1
     Returns
         S = list of total Sobol indices, ordered as input variables x
 
