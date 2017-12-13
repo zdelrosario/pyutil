@@ -166,7 +166,7 @@ def stepest(fcn,t0,eps_f):
 
     ## Check conditions for hB
     if (abs(fvalB[0]-fvalB[1])<=tau2*max(abs(fvalB[0]),fvalB[1])):
-        if nor (dhB/eps_f >= tau1):
+        if not (dhB/eps_f >= tau1):
             inform = 2
         return (pow(8,0.25) * sqrt(eps_f / muB)), inform
 
