@@ -1,7 +1,7 @@
 from numpy import cov, mean, array, diag, argsort, zeros, eye, sqrt, dot
 from numpy import errstate, true_divide, isfinite
 from scipy.linalg import svd, eig, solve
-from scipy.stats import f
+from scipy.stats import f, nct, norm
 from util import norm_col
 
 def div0( a, b ):
@@ -122,6 +122,21 @@ def hotelling(X):
     pval = 1 - f.cdf(fst,k,n-k)
 
     return pval
+
+def k_pc(p,c,n):
+    # Compute the knockdown factor for a basis value,
+    # assuming normally distributed data
+    #
+    # Usage
+    #   k = k_pc(p,c,n)
+    # Arguments
+    #   p = Desired population fraction (B: 0.90, A: 0.99)
+    #   c = Desired confidence level    (B: 0.95, A: 0.95)
+    #   n = Number of samples
+    # Returns
+    #   k = Knockdown factor; B = \hat{X} - k * S
+
+    return nct.ppf(c,n-1,-norm.ppf(1-p)*sqrt(n)) / sqrt(n)
 
 if __name__ == "__main__":
     # Setup
