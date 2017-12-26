@@ -81,7 +81,7 @@ def tleg(k):
 if __name__ == "__main__":
     from util import multi_index
     import numpy as np
-    from integrate import integrate_rule
+    from integrate import cubature_rule
 
     import matplotlib.pyplot as plt
 
@@ -97,7 +97,7 @@ if __name__ == "__main__":
             k2 = K[j]; f2 = tleg(k2)
 
             prod = lambda x: f1(x)*f2(x)
-            V[i,j] = integrate_rule(prod, 10, m, 'LEGENDRE')
+            V[i,j] = cubature_rule(prod, 10, m, 'LEGENDRE')
     # Plot results
     plt.figure()
     plt.spy(V)
