@@ -6,7 +6,7 @@ from numpy import array
 from scipy.special import legendre
 from scipy.special import hermite
 
-from util import multi_index
+from .util import multi_index
 
 # Tensor product polynomial evaluation
 def tpolyval(P,X):

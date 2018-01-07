@@ -3,7 +3,7 @@ import numpy as np
 from scipy.optimize import fmin_bfgs
 
 # Custom libraries
-from barrier import log_barrier, inv_barrier, ext_obj
+from .barrier import log_barrier, inv_barrier, ext_obj
 
 def constrained_opt(F,G,x0,tol=1e-8,it_max=1e3,disp=False):
     """ Constrained Optimization via interior point method

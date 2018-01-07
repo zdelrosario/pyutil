@@ -2,7 +2,8 @@ from numpy import cov, mean, array, diag, argsort, zeros, eye, sqrt, dot
 from numpy import errstate, true_divide, isfinite
 from scipy.linalg import svd, eig, solve
 from scipy.stats import f, nct, norm
-from util import norm_col
+
+from .util import norm_col
 
 def div0( a, b ):
     """Numpy vector division a / b

@@ -10,7 +10,7 @@ from numpy.polynomial.hermite import hermgauss
 from numpy.polynomial.legendre import leggauss
 from operator import mul
 
-from util import multi_index
+from .util import multi_index
 
 # Convenience function
 def prod(L):
