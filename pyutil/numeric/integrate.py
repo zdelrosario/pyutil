@@ -10,7 +10,7 @@ from numpy.polynomial.hermite import hermgauss
 from numpy.polynomial.legendre import leggauss
 from operator import mul
 
-from util import multi_index
+from .util import multi_index
 
 # Convenience function
 def prod(L):
@@ -95,7 +95,7 @@ def cubature_rule(fcn, n, m, flag):
     """Integrates an m-dimensional function on [-1,1]
     via a tensor-product cubature rule
     Usage
-        res = integrate_rule(f, n, m, flag)
+        res = cubature_rule(f, n, m, flag)
     Arguments
         fcn = function to integrate
         n   = number of points to use per dimension

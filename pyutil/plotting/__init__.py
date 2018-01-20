@@ -1,1 +1,1 @@
-from linspecer import *
+from .linspecer import *
