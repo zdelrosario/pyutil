@@ -137,7 +137,7 @@ def dr_sobol(fcn,X1,X2,Y1=None):
     """
     N,m = X1.shape
     # Generate the X1 sample realizations if necessary
-    if Y1 == None:
+    if Y1 is None:
         Y1 = np.array([ fcn(x) for x in X1 ])
     # Compute the global statistics
     D_0 = np.mean(Y1)**2
