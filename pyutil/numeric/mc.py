@@ -14,7 +14,7 @@ def genSeed(i,length=256):
       length = bytelength of converted integer
     Returns
       j = integer value
-    
+
     @post j \in [0,2^32-1]
     """
 
@@ -28,32 +28,62 @@ def genSeed(i,length=256):
 if __name__ == "__main__":
     ### Test MC tools
     import numpy as np
+    from scipy.stats import t
+    import time
     np.set_printoptions(precision=2)
 
     ### Test the seed generator
-    N = int(1e6)
-    M = 10
+    # Generate random strings from consecutive generated seeds,
+    # check for significance in their correlations
+    N = int(1e4) # Length of random strings
+    M = 3        # Number of strings
+    B = int(1e3) # Bootstrap resamples
+    alp = 0.01
 
     Seeds = [0] * M
-    X_all = np.zeros((M,N))
-    S_all = np.zeros(M)
+    X_all = np.zeros((N,M))
 
-    for ind in range(M):
-        Seeds[ind] = genSeed(ind)
+    # Generate from sequential seeds
+    # for ind in range(M):
+    #     Seeds[ind] = genSeed(ind)
 
-        np.random.seed(Seeds[ind]); 
-        X_all[ind] = np.random.random(N)
-        S_all[ind] = np.sqrt(np.var(X_all[ind]))
+    #     np.random.seed(Seeds[ind]);
+    #     X_all[:,ind] = np.random.random(N)
+
+    # Generate from single seed
+    X_all = np.random.random((N,M))
 
     # Check the rng stream correlations
-    C_all = np.zeros((M,M))
-    for ind in range(M):
-        for jnd in range(ind):
-            C_all[ind,jnd] = np.cov(X_all[ind],X_all[jnd])[0,1]
-            C_all[jnd,ind] = C_all[ind,jnd]
+    def corrMat(data):
+        c = np.cov(data,rowvar=False)
+        n = np.diag(1/np.sqrt(np.diag(c)))
 
-    Sinv  = np.diag(1 / S_all)
-    R_all = np.dot(Sinv,np.dot(C_all,Sinv))
-    np.fill_diagonal(R_all,1)
+        return np.dot(n,np.dot(c,n))
+    R = corrMat(X_all)
 
-    print("R_all = {}".format(R_all))
+    # Perform bootstrap hypothesis test
+    R_boot = np.zeros((M,M,B))
+    M_boot = np.zeros((M,M,B))
+
+    t0 = time.time()
+    for ind in range(B):
+        I = np.random.choice(N,N)
+        R_boot[:,:,ind] = corrMat(X_all[I,:])
+        M_boot[:,:,ind] = R_boot[:,:,ind] - R
+    R_boot.sort(axis=-1)
+    M_mat = np.mean( np.abs(M_boot), axis=-1 )
+    S_mat = np.sqrt( np.var(R_boot, axis=-1) ) / np.sqrt(B)
+    T_mat = M_mat / S_mat
+    p_mat = 1 - t.cdf( T_mat, B-1 )
+    t1 = time.time()
+
+    # Compute empirical CI
+    R_lo = R_boot[:,:,int(B * alp/2)]
+    R_hi = R_boot[:,:,int(B * (1-alp/2))]
+
+    print("--------------------------------------------------")
+    print("Execution time: {0:6.4f}".format(t1-t0))
+    print("R     = \n{}".format(R))
+    print("R_lo  = \n{}".format(R_lo))
+    print("R_hi  = \n{}".format(R_hi))
+    print("p_mat = \n{}".format(p_mat))
