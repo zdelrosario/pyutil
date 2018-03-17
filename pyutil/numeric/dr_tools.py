@@ -137,7 +137,7 @@ def dr_sobol(fcn,X1,X2,Y1=None):
     """
     N,m = X1.shape
     # Generate the X1 sample realizations if necessary
-    if Y1 == None:
+    if Y1 is None:
         Y1 = np.array([ fcn(x) for x in X1 ])
     # Compute the global statistics
     D_0 = np.mean(Y1)**2
@@ -185,6 +185,42 @@ if __name__ == "__main__":
     S = ut.dr_sobol(fcn_p,Xi1,Xi2)
 
     print("S_total = \n{}".format(np.array(S)))
+
+    ### Run dr_sobol() on the Ishigami function
+
+    N = int(1e3)
+
+    ## Setup
+    m = 3
+    Xi1 = np.random.random((N,m))*2*np.pi - np.pi
+    Xi2 = np.random.random((N,m))*2*np.pi - np.pi
+
+    a = 7.0
+    b = 0.1
+
+    fcn = lambda xi: np.sin(xi[0]) + a*np.sin(xi[1])**2 + b*xi[2]**4*np.sin(xi[0])
+
+    ## Exact variance components
+    D    = (a**2)/8. + (b*np.pi**4)/5. + (b**2*np.pi**8)/18. + 0.5
+    D1   = (b*np.pi**4)/5. + (b**2*np.pi**8)/50. + 0.5
+    D2   = a**2/8.
+    D3   = 0.
+    D12  = 0.
+    D13  = (b**2*np.pi**8)/18 - (b**2*np.pi**8)/50.
+    D23  = 0.
+    D123 = 0.
+
+    S_T1 = (D1 + D12 + D13 + D123) / D
+    S_T2 = (D2 + D12 + D23 + D123) / D
+    S_T3 = (D3 + D13 + D23 + D123) / D
+
+    ## Approximate total Sobol indices
+    S_T_hat = dr_sobol(fcn,Xi1,Xi2)
+
+    ## Report
+    print("--------------------------------------------------")
+    print("S_T1   = {0:6.4f}, S_T2   = {1:6.4f}, S_T3   = {2:6.4f}".format(S_T1,S_T2,S_T3))
+    print("S_T1_h = {0:6.4f}, S_T2_h = {1:6.4f}, S_T3_h = {2:6.4f}".format(*S_T_hat))
 
     # plt.plot(W[:,0].T.dot(Xi1.T),fcn(Xi1.T),'.')
     # plt.show()
