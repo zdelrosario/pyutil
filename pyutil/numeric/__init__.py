@@ -12,3 +12,4 @@ from .noise import ecnoise, autonoise, stepest, multiest
 from .print_progress import print_progress
 from .halton import halton, qmc_unif, qmc_norm
 from .mc import genSeed
+from .kle import lam_gaussian, phi_gaussian
