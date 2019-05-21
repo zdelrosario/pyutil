@@ -160,6 +160,49 @@ def dr_sobol(fcn,X1,X2,Y1=None):
 
     return S
 
+def fo_sobol(fcn, X1, X2, Y1 = None):
+    """Compute first order Sobol' indices using hybrid-point monte carlo.
+
+    Usage
+        S = dr_sobol(fcn,X1,X2)
+    Arguments
+        fcn = function handle f(x) for x \in R^m
+        X1  = sample set 1, numpy array
+        X2  = sample set 2, numpy array
+        Y1  = function values for X1
+    Returns
+        S = list of total Sobol indices, ordered as input variables x
+
+    @pre X1.shape == X2.shape === (N,m)
+    """
+    N, m = X1.shape
+    # Generate the X1 sample realizations if necessary
+    if Y1 is None:
+        Y1 = np.array([ fcn(x) for x in X1 ])
+    # Compute the global statistics
+    mu_hat = np.mean(Y1)
+    D      = np.var(Y1)
+    # Iterate over all input variables
+    S = []
+    Y2 = np.zeros(N)
+    for i in range(m):
+        val = 0
+        I   = [i]
+        Ic  = array_comp(I,m)
+        for j in range(N):
+            # Construct inverleaved sample
+            x     = np.zeros(m)
+            x[I]  = X1[j,I]
+            x[Ic] = X2[j,Ic]
+            Y2[j] = fcn(x)
+            # Evaluate
+            val += Y1[j] * Y2[j]/N
+        # Compute total sobol index
+        S.append( (val - 0.25 * (mu_hat + np.mean(Y2))**2) / D )
+
+    return S
+
+
 if __name__ == "__main__":
     ### Setup
     import numpy as np
@@ -188,7 +231,7 @@ if __name__ == "__main__":
 
     ### Run dr_sobol() on the Ishigami function
 
-    N = int(1e3)
+    N = int(1e5)
 
     ## Setup
     m = 3
@@ -210,17 +253,25 @@ if __name__ == "__main__":
     D23  = 0.
     D123 = 0.
 
+    S_F1 = D1 / D
+    S_F2 = D2 / D
+    S_F3 = D3 / D
+
     S_T1 = (D1 + D12 + D13 + D123) / D
     S_T2 = (D2 + D12 + D23 + D123) / D
     S_T3 = (D3 + D13 + D23 + D123) / D
 
     ## Approximate total Sobol indices
     S_T_hat = dr_sobol(fcn,Xi1,Xi2)
+    S_F_hat = fo_sobol(fcn,Xi1,Xi2)
 
     ## Report
     print("--------------------------------------------------")
     print("S_T1   = {0:6.4f}, S_T2   = {1:6.4f}, S_T3   = {2:6.4f}".format(S_T1,S_T2,S_T3))
     print("S_T1_h = {0:6.4f}, S_T2_h = {1:6.4f}, S_T3_h = {2:6.4f}".format(*S_T_hat))
+    print()
+    print("S_F1   = {0:6.4f}, S_F2   = {1:6.4f}, S_F3   = {2:6.4f}".format(S_F1,S_F2,S_F3))
+    print("S_F1_h = {0:6.4f}, S_F2_h = {1:6.4f}, S_F3_h = {2:6.4f}".format(*S_F_hat))
 
     # plt.plot(W[:,0].T.dot(Xi1.T),fcn(Xi1.T),'.')
     # plt.show()
