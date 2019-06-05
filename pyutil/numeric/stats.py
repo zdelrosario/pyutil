@@ -1,5 +1,6 @@
-from numpy import cov, mean, array, diag, argsort, zeros, eye, sqrt, dot
-from numpy import errstate, true_divide, isfinite
+from numpy import cov, mean, array, diag, argsort, zeros, eye, sqrt, dot, var, sqrt
+from numpy import errstate, true_divide, isfinite, quantile
+from numpy.random import choice
 from scipy.linalg import svd, eig, solve
 from scipy.stats import f, nct, norm
 
@@ -124,6 +125,91 @@ def hotelling(X):
 
     return pval
 
+def bootstrap_ci(
+        X,
+        fcn_theta,
+        con       = 0.99,
+        fcn_se    = None,
+        theta_hat = None,
+        se        = None,
+        n_boot    = 1000,
+        n_sub     = 25
+):
+    """Construct bootstrap confidence intervals
+    Implements the "bootstrap-t interval" method discussed in
+    Efron and Tibshirani (1993)
+
+    Usage
+        theta_l, theta_u = bootstrap_ci(X, fcn_theta, con = con)
+    Arguments
+        X         = numpy array of (possibly multivariate) samples
+        fcn_theta = function which takes a sample X and returns single scalar
+                    theta_hat = fcn_theta(X)
+        fcn_se    = function which takes sample X and returns se; approximated
+                    via additional inner-bootstrap if not provided
+        con       = desired confidence level, default con = 0.99
+        theta_hat = estimated statistic; will be computed if not given
+        se        = standard error for statistic; if not given, estimated from given
+                    bootstrap resample
+        n_boot    = monte carlo resamples for bootstrap
+                    default value n_sub = 1000
+        n_sub     = additional resamples used to approximate SE of bootstrap estimate
+                    default value n_sub = 25
+    Returns
+        theta_lo = lower confidence bound
+        theta_hi = upper confidence bound
+
+    References and Notes
+    - Efron and Tibshirani (1993) "An introduction to the bootstrap"
+      "The bootstrap-t procedure... is particularly applicable to location statistics
+       like the sample mean.... The bootstrap-t method, at least in its simple form,
+       cannot be trusted for more general problems, like setting a confidence interval
+       for a correlation coefficient."
+    """
+    ## Derived quantities
+    n_samples = X.shape[0]
+    alpha = (1 - con) / 2
+
+    ## Initial estimate
+    if theta_hat is None:
+        theta_hat = fcn_theta(X)
+
+    ## Main loop for bootstrap
+    theta_all   = np.zeros(n_boot)
+    se_boot_all = np.zeros(n_boot)
+    z_all       = np.zeros(n_boot)
+    theta_sub   = np.zeros(n_sub)
+
+    for ind in range(n_boot):
+        ## Construct resample
+        Ib             = choice(n_samples, size = n_samples, replace = True)
+        theta_all[ind] = fcn_theta(X[Ib])
+
+        if fcn_se is None:
+            ## Approximate bootstrap se by internal loop
+            for jnd in range(n_sub):
+                Isub           = Ib[choice(n_samples, size = n_samples, replace = True)]
+                theta_sub[jnd] = fcn_theta(X[Isub])
+            se_boot_all[ind] = sqrt( var(theta_sub) / (n_sub - 1) )
+        else:
+            se_boot_all[ind] = fcn_se(X[Ib])
+
+        ## Construct approximate pivot
+        z_all[ind] = (theta_all[ind] - theta_hat) / se_boot_all[ind]
+
+    ## Compute bootstrap table
+    t_lo, t_hi = quantile(z_all, q = [1 - alpha, alpha])
+
+    ## Approximate se of original statistic via bootstrap, if necessary
+    if se is None:
+        se = sqrt( var(theta_all) / (n_boot - 1) )
+
+    ## Construct confidence interval
+    theta_lo = theta_hat - t_lo * se
+    theta_hi = theta_hat - t_hi * se
+
+    return theta_lo, theta_hi
+
 def k_pc(p,c,n):
     # Compute the knockdown factor for a basis value,
     # assuming normally distributed data
@@ -142,29 +228,63 @@ def k_pc(p,c,n):
 if __name__ == "__main__":
     # Setup
     import numpy as np
+    import time
     np.set_printoptions(precision=3)
 
-    n = int(301)                    # Number of samples
-    H = 15                          # Slices for range
-    # Problem
-    # Test case taken from (Hardle, Simar), Ch. 18.3 SIR
-    m = 3                           # Ambient dimensionality
-    B = np.array([[1,1,1],[1,-1,-1]]).T
-    fcn = lambda x: B[:,0].dot(x) + (B[:,0].dot(x))**3 + 4*(B[:,1].dot(x))**2 + \
-          np.random.normal()
-    # Data
-    X_s = np.random.normal(size=(n,m))
-    Y_s = np.array([fcn(x) for x in X_s])
-    # Test SIR
-    B_sir, L_sir = dr_sir(Y_s,X_s)
-    # Test SAVE
-    B_save, L_save = dr_save(Y_s,X_s)
+    # n = int(301)                    # Number of samples
+    # H = 15                          # Slices for range
+    # # Problem
+    # # Test case taken from (Hardle, Simar), Ch. 18.3 SIR
+    # m = 3                           # Ambient dimensionality
+    # B = np.array([[1,1,1],[1,-1,-1]]).T
+    # fcn = lambda x: B[:,0].dot(x) + (B[:,0].dot(x))**3 + 4*(B[:,1].dot(x))**2 + \
+    #       np.random.normal()
+    # # Data
+    # X_s = np.random.normal(size=(n,m))
+    # Y_s = np.array([fcn(x) for x in X_s])
+    # # Test SIR
+    # B_sir, L_sir = dr_sir(Y_s,X_s)
+    # # Test SAVE
+    # B_save, L_save = dr_save(Y_s,X_s)
 
-    # Print results
-    print("")
-    print("Results:")
-    print("L_sir  = {}".format(L_sir))
-    print("L_save = {}".format(L_save))
-    print("B_sir  = \n{}".format(B_sir))
-    print("B_save = \n{}".format(B_save))
-    print("")
+    # # Print results
+    # print("")
+    # print("Results:")
+    # print("L_sir  = {}".format(L_sir))
+    # print("L_save = {}".format(L_save))
+    # print("B_sir  = \n{}".format(B_sir))
+    # print("B_save = \n{}".format(B_save))
+    # print("")
+
+    ## Test bootstrap table CI method
+    np.random.seed(101)
+    mu  = 0
+    sig = 1
+
+    con    = 0.90
+    n_samp = 50
+    n_rep  = 100
+
+    fcn_theta = lambda X: np.mean(X)
+    fcn_se    = lambda X: np.sqrt( np.var(X) / (len(X) - 1) )
+
+    theta_lo_all = np.zeros(n_rep)
+    theta_hi_all = np.zeros(n_rep)
+    bool_cover   = np.zeros(n_rep)
+
+    X = np.random.normal(size = (n_rep, n_samp), loc = mu, scale = sig)
+
+    t0 = time.time()
+    for ind in range(n_rep):
+        theta_lo_all[ind], theta_hi_all[ind] = bootstrap_ci(
+            X[ind],
+            fcn_theta,
+            con    = con,
+            fcn_se = fcn_se
+        )
+        bool_cover[ind] = (theta_lo_all[ind] <= mu) * (mu <= theta_hi_all[ind])
+    t1 = time.time()
+
+    coverage_obs = np.mean(bool_cover)
+    print("Execution time: {0:4.3f}".format(t1 - t0))
+    print("Observed coverage = {0:4.3f}".format(coverage_obs))
