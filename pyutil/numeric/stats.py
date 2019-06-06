@@ -190,7 +190,7 @@ def bootstrap_ci(
             for jnd in range(n_sub):
                 Isub           = Ib[choice(n_samples, size = n_samples, replace = True)]
                 theta_sub[jnd] = fcn_theta(X[Isub])
-            se_boot_all[ind] = sqrt( var(theta_sub) / (n_sub - 1) )
+            se_boot_all[ind] = sqrt( var(theta_sub) )
         else:
             se_boot_all[ind] = fcn_se(X[Ib])
 
@@ -203,7 +203,7 @@ def bootstrap_ci(
     ## Approximate se of original statistic via bootstrap, if necessary
     if se is None:
         if fcn_se is None:
-            se = sqrt( var(theta_all) / (n_boot - 1) )
+            se = sqrt( var(theta_all) )
         else:
             se = fcn_se(X)
 
@@ -282,8 +282,8 @@ if __name__ == "__main__":
         theta_lo_all[ind], theta_hi_all[ind] = bootstrap_ci(
             X[ind],
             fcn_theta,
-            con    = con,
-            fcn_se = fcn_se
+            con    = con
+            # fcn_se = fcn_se
         )
         bool_cover[ind] = (theta_lo_all[ind] <= mu) * (mu <= theta_hi_all[ind])
     t1 = time.time()
@@ -291,57 +291,3 @@ if __name__ == "__main__":
     coverage_obs = np.mean(bool_cover)
     print("Execution time: {0:4.3f}".format(t1 - t0))
     print("Observed coverage = {0:4.3f}".format(coverage_obs))
-
-#    ## DEBUG -- inline run
-#    theta_hat = None
-#    n_boot    = 100
-#    n_sub     = 25
-#    se        = None
-#    X = np.random.normal(size = n_samp, loc = mu, scale = sig)
-#
-#    ## Derived quantities
-#    n_samples = X.shape[0]
-#    alpha = (1 - con) / 2
-#
-#    ## Initial estimate
-#    if theta_hat is None:
-#        theta_hat = fcn_theta(X)
-#
-#    ## Main loop for bootstrap
-#    theta_all   = np.zeros(n_boot)
-#    se_boot_all = np.zeros(n_boot)
-#    z_all       = np.zeros(n_boot)
-#    theta_sub   = np.zeros(n_sub)
-#
-#    for ind in range(n_boot):
-#        ## Construct resample
-#        Ib             = choice(n_samples, size = n_samples, replace = True)
-#        theta_all[ind] = fcn_theta(X[Ib])
-#
-#        if fcn_se is None:
-#            ## Approximate bootstrap se by internal loop
-#            for jnd in range(n_sub):
-#                Isub           = Ib[choice(n_samples, size = n_samples, replace = True)]
-#                theta_sub[jnd] = fcn_theta(X[Isub])
-#            se_boot_all[ind] = sqrt( var(theta_sub) / (n_sub - 1) )
-#        else:
-#            se_boot_all[ind] = fcn_se(X[Ib])
-#
-#        ## Construct approximate pivot
-#        z_all[ind] = (theta_all[ind] - theta_hat) / se_boot_all[ind]
-#
-#    ## Compute bootstrap table
-#    t_lo, t_hi = quantile(z_all, q = [1 - alpha, alpha])
-#
-#    ## Approximate se of original statistic via bootstrap, if necessary
-#    if se is None:
-#        if fcn_se is None:
-#            se = sqrt( var(theta_all) / (n_boot - 1) )
-#        else:
-#            se = fcn_se(X)
-#
-#    ## Construct confidence interval
-#    theta_lo = theta_hat - t_lo * se
-#    theta_hi = theta_hat - t_hi * se
-#
-#    print("({0:4.3f}, {1:4.3f})".format(theta_lo, theta_hi))
