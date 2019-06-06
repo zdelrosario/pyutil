@@ -168,17 +168,18 @@ def bootstrap_ci(
     """
     ## Derived quantities
     n_samples = X.shape[0]
-    alpha = (1 - con) / 2
+    alpha     = (1 - con) / 2
 
     ## Initial estimate
     if theta_hat is None:
         theta_hat = fcn_theta(X)
+    n_entries = len(np.atleast_1d(theta_hat))
 
     ## Main loop for bootstrap
-    theta_all   = np.zeros(n_boot)
-    se_boot_all = np.zeros(n_boot)
-    z_all       = np.zeros(n_boot)
-    theta_sub   = np.zeros(n_sub)
+    theta_all   = np.zeros((n_boot, n_entries))
+    se_boot_all = np.zeros((n_boot, n_entries))
+    z_all       = np.zeros((n_boot, n_entries))
+    theta_sub   = np.zeros((n_sub,  n_entries))
 
     for ind in range(n_boot):
         ## Construct resample
@@ -190,7 +191,8 @@ def bootstrap_ci(
             for jnd in range(n_sub):
                 Isub           = Ib[choice(n_samples, size = n_samples, replace = True)]
                 theta_sub[jnd] = fcn_theta(X[Isub])
-            se_boot_all[ind] = sqrt( var(theta_sub) )
+
+            se_boot_all[ind] = sqrt( var(theta_sub, axis = 0) )
         else:
             se_boot_all[ind] = fcn_se(X[Ib])
 
@@ -198,12 +200,12 @@ def bootstrap_ci(
         z_all[ind] = (theta_all[ind] - theta_hat) / se_boot_all[ind]
 
     ## Compute bootstrap table
-    t_lo, t_hi = quantile(z_all, q = [1 - alpha, alpha])
+    t_lo, t_hi = quantile(z_all, q = [1 - alpha, alpha], axis = 0)
 
     ## Approximate se of original statistic via bootstrap, if necessary
     if se is None:
         if fcn_se is None:
-            se = sqrt( var(theta_all) )
+            se = sqrt( var(theta_all, axis = 0) )
         else:
             se = fcn_se(X)
 
@@ -260,6 +262,7 @@ if __name__ == "__main__":
     # print("")
 
     ## Test bootstrap table CI method
+    # --------------------------------------------------
     np.random.seed(101)
     mu  = 0
     sig = 1
@@ -268,14 +271,20 @@ if __name__ == "__main__":
     n_samp = 50
     n_rep  = 100
 
-    fcn_theta = lambda X: np.mean(X)
-    fcn_se    = lambda X: np.sqrt( np.var(X) / (len(X) - 1) )
+    fcn_theta  = lambda D: np.array([np.mean(D.flatten()), np.var(D.flatten())])
+    theta_true = [mu, sig**2]
 
     theta_lo_all = np.zeros(n_rep)
     theta_hi_all = np.zeros(n_rep)
-    bool_cover   = np.zeros(n_rep)
 
     X = np.random.normal(size = (n_rep, n_samp), loc = mu, scale = sig)
+    theta_hat = fcn_theta(X)
+
+    n_elem = len(np.atleast_1d(theta_hat))
+
+    theta_lo_all = np.zeros((n_rep, n_elem))
+    theta_hi_all = np.zeros((n_rep, n_elem))
+    bool_cover   = np.zeros((n_rep, n_elem))
 
     t0 = time.time()
     for ind in range(n_rep):
@@ -285,9 +294,12 @@ if __name__ == "__main__":
             con    = con
             # fcn_se = fcn_se
         )
-        bool_cover[ind] = (theta_lo_all[ind] <= mu) * (mu <= theta_hi_all[ind])
+        bool_cover[ind] = (theta_lo_all[ind] <= theta_true) * \
+                          (theta_true <= theta_hi_all[ind])
+
     t1 = time.time()
 
-    coverage_obs = np.mean(bool_cover)
+    coverage_obs = np.mean(bool_cover, axis = 0)
+
     print("Execution time: {0:4.3f}".format(t1 - t0))
-    print("Observed coverage = {0:4.3f}".format(coverage_obs))
+    print("Observed coverage = {}".format(coverage_obs))
