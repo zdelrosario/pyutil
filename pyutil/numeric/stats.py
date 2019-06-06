@@ -264,20 +264,23 @@ if __name__ == "__main__":
     ## Test bootstrap table CI method
     # --------------------------------------------------
     np.random.seed(101)
-    mu  = 0
-    sig = 1
+    n_dim = 2
+    mu    = np.arange(n_dim)
+    sig   = 1
 
     con    = 0.90
     n_samp = 50
     n_rep  = 100
 
-    fcn_theta  = lambda D: np.array([np.mean(D.flatten()), np.var(D.flatten())])
-    theta_true = [mu, sig**2]
+    fcn_theta  = lambda X: [np.mean(X[:, 0]), np.mean(X[:, 1])]
+    theta_true = mu
 
     theta_lo_all = np.zeros(n_rep)
     theta_hi_all = np.zeros(n_rep)
 
-    X = np.random.normal(size = (n_rep, n_samp), loc = mu, scale = sig)
+    X = np.zeros((n_rep, n_samp, n_dim))
+    X[:, :, 0] = np.random.normal(size = (n_rep, n_samp), loc = mu[0], scale = sig)
+    X[:, :, 1] = np.random.normal(size = (n_rep, n_samp), loc = mu[1], scale = sig)
     theta_hat = fcn_theta(X)
 
     n_elem = len(np.atleast_1d(theta_hat))
