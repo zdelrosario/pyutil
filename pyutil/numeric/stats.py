@@ -1,6 +1,6 @@
 from numpy import cov, mean, array, diag, argsort, zeros, eye, sqrt, dot, var, sqrt
 from numpy import errstate, true_divide, isfinite, quantile, atleast_1d
-from numpy.random import choice
+from numpy.random import choice, random
 from scipy.linalg import svd, eig, solve
 from scipy.stats import f, nct, norm
 
@@ -214,6 +214,22 @@ def bootstrap_ci(
     theta_hi = theta_hat - t_hi * se
 
     return theta_lo, theta_hi
+
+def rcorr(rk, dim):
+    """Build a random correlation matrix
+    Usage
+        R = rcorr(rk, dim)
+    Arguments
+        rk  = rank for random vector kernel
+        dim = dimension of correlation matrix (dim x dim)
+    Returns
+        R   = correlation matrix
+    """
+    W  = random((dim, rk)) * 2 - 1
+    S  = dot(W, W.T) + diag(random(dim))
+    Sd = diag(1 / sqrt(diag(S)))
+
+    return dot(Sd, dot(S, Sd))
 
 def k_pc(p,c,n):
     # Compute the knockdown factor for a basis value,
