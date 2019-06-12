@@ -1,5 +1,5 @@
 from numpy import cov, mean, array, diag, argsort, zeros, eye, sqrt, dot, var, sqrt
-from numpy import errstate, true_divide, isfinite, quantile
+from numpy import errstate, true_divide, isfinite, quantile, atleast_1d
 from numpy.random import choice
 from scipy.linalg import svd, eig, solve
 from scipy.stats import f, nct, norm
@@ -173,13 +173,13 @@ def bootstrap_ci(
     ## Initial estimate
     if theta_hat is None:
         theta_hat = fcn_theta(X)
-    n_entries = len(np.atleast_1d(theta_hat))
+    n_entries = len(atleast_1d(theta_hat))
 
     ## Main loop for bootstrap
-    theta_all   = np.zeros((n_boot, n_entries))
-    se_boot_all = np.zeros((n_boot, n_entries))
-    z_all       = np.zeros((n_boot, n_entries))
-    theta_sub   = np.zeros((n_sub,  n_entries))
+    theta_all   = zeros((n_boot, n_entries))
+    se_boot_all = zeros((n_boot, n_entries))
+    z_all       = zeros((n_boot, n_entries))
+    theta_sub   = zeros((n_sub,  n_entries))
 
     for ind in range(n_boot):
         ## Construct resample
