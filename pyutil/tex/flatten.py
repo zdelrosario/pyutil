@@ -21,7 +21,7 @@ parser.add_argument(
 ## Parse arguments
 args = parser.parse_args()
 
-dir_base = os.path.dirname(args.filename)
+dir_base = os.path.abspath(os.path.dirname(args.filename))
 if args.directory is None:
     dir_target = dir_base
 else:
