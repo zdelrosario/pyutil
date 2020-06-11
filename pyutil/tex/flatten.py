@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import argparse, fnmatch, os, re
 from shutil import copy
 
@@ -13,15 +14,18 @@ parser.add_argument(
     "-d",
     "--directory",
     type=str,
-    help="Target (output) directory",
-    default="."
+    help="Target (output) directory; defaults to original file's directory",
+    default=None
 )
 
 ## Parse arguments
 args = parser.parse_args()
 
 dir_base = os.path.dirname(args.filename)
-dir_target = os.path.abspath(args.directory)
+if args.directory is None:
+    dir_target = dir_base
+else:
+    dir_target = os.path.abspath(args.directory)
 
 filename_in = os.path.abspath(args.filename)
 filename_out = os.path.join(
