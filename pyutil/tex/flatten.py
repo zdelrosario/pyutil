@@ -18,6 +18,14 @@ parser.add_argument(
     default=None
 )
 
+parser.add_argument(
+    "-s",
+    "--suffix",
+    type=str,
+    help="Suffix for new tex file",
+    default="-flat"
+)
+
 ## Parse arguments
 args = parser.parse_args()
 
@@ -30,7 +38,7 @@ else:
 filename_in = os.path.abspath(args.filename)
 filename_out = os.path.join(
     dir_target,
-    re.sub(r"\.tex", "-flat.tex", os.path.basename(filename_in))
+    re.sub(r"\.tex", args.suffix + ".tex", os.path.basename(filename_in))
 )
 
 # Helper functions
