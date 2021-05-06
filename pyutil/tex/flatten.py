@@ -118,6 +118,27 @@ with open(filename_in, 'r') as file_in:
                 codeline = re.sub("\{.*\}", "{" + os.path.basename(codeabspath) + "}", line)
                 file_out.write(codeline)
 
+            ## Copy input
+            elif not (re.search(r"\\input", line) is None):
+                ## Check that file is in other directory
+                if (re.search(r"\.", line) is None):
+                    file_out.write(line)
+
+                else:
+                    ## Find the code file
+                    codename = re.search("\{.*\}", line).group(0)
+                    codename = re.sub("[\{\}]", "", codename)
+                    codeabspath = os.path.abspath(
+                        os.path.join(dir_base, codename)
+                    )
+
+                    ## Copy the sole match
+                    copy(codeabspath, dir_target)
+
+                    ## Replace original absolute path with new relative path
+                    codeline = re.sub("\{.*\}", "{" + os.path.basename(codeabspath) + "}", line)
+                    file_out.write(codeline)
+
             ## Echo an unmatched line
             else:
                 file_out.write(line)
