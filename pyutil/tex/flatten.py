@@ -77,8 +77,11 @@ with open(filename_in, 'r') as file_in:
 
         for line in file_in.readlines():
 
+            ## Pass-through a commented line
+            if not (re.search(r"^\s*\%\%", line) is None):
+                file_out.write(line)
             ## Replace the graphicspath with local directory
-            if not (re.search(r"^\\graphicspath", line) is None):
+            elif not (re.search(r"^\\graphicspath", line) is None):
                 dirname = re.search("\{.*\}", line).group(0)
                 dirname = re.sub("[\{\}]", "", dirname)
 
