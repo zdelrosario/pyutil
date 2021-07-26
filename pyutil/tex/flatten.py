@@ -97,7 +97,10 @@ with open(filename_in, 'r') as file_in:
                 )
 
                 ## Copy the first match
-                copy(image_matches[0], dir_target)
+                try:
+                    copy(image_matches[0], dir_target)
+                except IndexError:
+                    raise ValueError("Image {} not found".format(imagename))
 
                 ## Echo the original line
                 file_out.write(line)
